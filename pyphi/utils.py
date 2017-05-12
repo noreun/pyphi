@@ -456,6 +456,18 @@ def hamming_emd(d1, d2):
     # transportation cost function.
     return emd(d1.ravel(), d2.ravel(), _hamming_matrix(N))
 
+def entropy_difference(d1,d2):
+    """Return the entropy of the distribution d2 minus the entropy of the
+    distribution d1
+    """
+
+    d1=d1.flatten()
+    d2=d2.flatten()
+    d1[d1==0]=1
+    d2[d2==0]=1
+    b=sum(np.multiply(d2,np.log(d2)))-sum(np.multiply(d1,np.log(d1)))
+
+    return abs(b)
 
 def l1(d1, d2):
     """Return the L1 distance between two distributions.

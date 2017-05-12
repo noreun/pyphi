@@ -5,7 +5,7 @@
 import numpy as np
 
 from .. import config, utils, validate
-from ..constants import EMD, KLD, L1
+from ..constants import EMD, KLD, L1, ENTROPY
 
 BIG_NUMBER = 1000000
 
@@ -31,7 +31,8 @@ def measure(d1, d2):
         if np.isinf(result):
             return BIG_NUMBER
 
-        return result
+    elif config.MEASURE == ENTROPY:
+        return utils.entropy_difference(d1,d2)
 
     validate.measure(config.MEASURE)
 
