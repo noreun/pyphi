@@ -5,7 +5,7 @@
 import numpy as np
 
 from .. import config, utils, validate
-from ..constants import EMD, KLD, L1, ENTROPY
+from ..constants import EMD, KLD, L1, ENTROPY, DIFFSUM
 
 BIG_NUMBER = 1000000
 
@@ -154,14 +154,22 @@ def constellation_distance(C1, C2):
     Returns:
         float: The distance between the two constellations in concept-space.
     """
-    concepts_only_in_C1 = [
-        c1 for c1 in C1 if not any(c1.emd_eq(c2) for c2 in C2)]
-    concepts_only_in_C2 = [
-        c2 for c2 in C2 if not any(c2.emd_eq(c1) for c1 in C1)]
-    # If the only difference in the constellations is that some concepts
-    # disappeared, then we don't need to use the EMD.
-    if not concepts_only_in_C1 or not concepts_only_in_C2:
-        return _constellation_distance_simple(C1, C2)
+
+    if config.BIG_DISTANCE == EMD:
+        concepts_only_in_C1 = [
+            c1 for c1 in C1 if not any(c1.emd_eq(c2) for c2 in C2)]
+        concepts_only_in_C2 = [
+            c2 for c2 in C2 if not any(c2.emd_eq(c1) for c1 in C1)]
+        # If the only difference in the constellations is that some concepts
+        # disappeared, then we don't need to use the EMD.
+        if not concepts_only_in_C1 or not concepts_only_in_C2:
+            return _constellation_distance_simple(C1, C2)
+        else:
+            return _constellation_distance_emd(concepts_only_in_C1,
+                                               concepts_only_in_C2)
+    elif config.BIG_DISTANCE == DIFFSUM:
+        return abs(sum(c.phi for c in C1) - sum(c.phi for c in C2))
     else:
-        return _constellation_distance_emd(concepts_only_in_C1,
-                                           concepts_only_in_C2)
+        raise ValueError(
+            '`BIG_DISTANCE` must be either `pyphi.constants.EMD` '
+            'or `pyphi.constants.DIFFSUM`')

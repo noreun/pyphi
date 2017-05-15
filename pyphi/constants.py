@@ -52,5 +52,8 @@ L1 = 'L1'
 #: Difference in entropy
 ENTROPY = 'ENTROPY'
 
+#: Difference in the sum of small-phi
+DIFFSUM = 'DIFFSUM'
+
 #: All available measures
 MEASURES = [EMD, KLD, L1, ENTROPY]

@@ -367,6 +367,8 @@ DEFAULTS = {
     'CUT_ONE_APPROXIMATION': False,
     # The measure to use when computing phi ('EMD', 'KLD', 'L1')
     'MEASURE': 'EMD',
+    # The distance used to compute big phi
+    'BIG_DISTANCE': 'EMD',
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Controls whether concepts are evaluated in parallel.
     'PARALLEL_CONCEPT_EVALUATION': False,
