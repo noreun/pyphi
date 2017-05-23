@@ -31,6 +31,8 @@ def measure(d1, d2):
         if np.isinf(result):
             return BIG_NUMBER
 
+        return result
+
     elif config.MEASURE == ENTROPY:
         return utils.entropy_difference(d1,d2)
 
