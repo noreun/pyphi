@@ -36,6 +36,9 @@ def measure(d1, d2):
     elif config.MEASURE == ENTROPY:
         return utils.entropy_difference(d1,d2)
 
+    elif config.MEASURE == L2:
+        return utils.l2(d1,d2)
+
     validate.measure(config.MEASURE)
 
 

@@ -47,6 +47,9 @@ EMD = 'EMD'
 KLD = 'KLD'
 
 #: L1 distance
+L2 = 'L2'
+
+#: L1 distance
 L1 = 'L1'
 
 #: Difference in entropy
@@ -56,4 +59,4 @@ ENTROPY = 'ENTROPY'
 DIFFSUM = 'DIFFSUM'
 
 #: All available measures
-MEASURES = [EMD, KLD, L1, ENTROPY]
+MEASURES = [EMD, KLD, L1, L2, ENTROPY]

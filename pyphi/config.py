@@ -366,9 +366,11 @@ DEFAULTS = {
     # Only check single nodes cuts for the MIP. 2**n cuts instead of n.
     'CUT_ONE_APPROXIMATION': False,
     # The measure to use when computing phi ('EMD', 'KLD', 'L1')
-    'MEASURE': 'EMD',
+    #'MEASURE': 'EMD',
+    'MEASURE': 'ENTROPY',
     # The distance used to compute big phi
-    'BIG_DISTANCE': 'EMD',
+    #'BIG_DISTANCE': 'EMD',
+    'BIG_DISTANCE': 'DIFFSUM',
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Controls whether concepts are evaluated in parallel.
     'PARALLEL_CONCEPT_EVALUATION': False,
@@ -414,7 +416,7 @@ DEFAULTS = {
         # `level` can be "DEBUG", "INFO", "WARNING", "ERROR", or "CRITICAL".
         'file': {
             'enabled': True,
-            'level': 'INFO',
+            'level': 'DEBUG',
             'filename': 'pyphi.log'
         },
         'stdout': {
@@ -435,7 +437,11 @@ DEFAULTS = {
     # Use prettier __str__-like formatting in `repr` calls.
     'REPR_VERBOSITY': 2,
     # Only consider bipartitions which strictly partition the mechanism.
-    'PARTITION_MECHANISMS': False,
+    #'PARTITION_MECHANISMS': False,
+    'PARTITION_MECHANISMS': True,
+    # should do compositoin at the mechanism level
+    #'COMPOSITIONAL_CONCEPT': True
+    'COMPOSITIONAL_CONCEPT': False
 }
 
 # Get a reference to this module's dictionary so we can set the configuration

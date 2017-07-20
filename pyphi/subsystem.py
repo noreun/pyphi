@@ -10,7 +10,7 @@ import itertools
 import numpy as np
 
 from . import cache, config, utils, validate
-from .constants import EMD, KLD, L1, ENTROPY, Direction
+from .constants import EMD, KLD, L1,L2, ENTROPY, Direction
 from .models import (Bipartition, Concept, Cut, Mice, Mip, Part, Tripartition,
                      _null_mip)
 from .network import irreducible_purviews
@@ -551,8 +551,25 @@ class Subsystem:
 
         partitioned_repertoire = self.partitioned_repertoire(direction, partition)
 
-        phi = measure(direction, unpartitioned_repertoire,
-                      partitioned_repertoire)
+        if config.COMPOSITIONAL_CONCEPT:
+
+            rep_size = unpartitioned_repertoire.shape
+            non_zero_dim = [idx for (idx, s) in
+                            enumerate(rep_size) if s > 1]
+            phi = 0
+            for mechanism in list(utils.powerset(non_zero_dim))[1:]:
+                remove = list(set(range(len(rep_size))) - set(mechanism))
+                #print(remove)
+                upr = utils.marginalize_out(remove, unpartitioned_repertoire)
+                #print(upr)
+                pr = utils.marginalize_out(remove, partitioned_repertoire)
+                #print(pr)
+                phi += measure(direction, upr, pr)
+                #print(phi)
+
+        else:
+            phi = measure(direction, unpartitioned_repertoire,
+                          partitioned_repertoire)
 
         return (phi, partitioned_repertoire)
 
@@ -990,6 +1007,9 @@ def measure(direction, d1, d2):
 
     elif config.MEASURE == KLD:
         dist = utils.kld(d1, d2)
+
+    elif config.MEASURE == L2:
+        dist = utils.l2(d1, d2)
 
     elif config.MEASURE == L1:
         dist = utils.l1(d1, d2)

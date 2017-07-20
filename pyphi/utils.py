@@ -469,6 +469,18 @@ def entropy_difference(d1,d2):
 
     return abs(b)
 
+def l2(d1, d2):
+    """Return the L2 distance between two distributions.
+
+    Args:
+        d1 (np.ndarray): The first distribution.
+        d2 (np.ndarray): The second distribution.
+
+    Returns:
+        float: The sum of absolute differences of ``d1`` and ``d2``.
+    """
+    return np.sqrt(np.sum((d1 - d2)**2))
+
 def l1(d1, d2):
     """Return the L1 distance between two distributions.
 

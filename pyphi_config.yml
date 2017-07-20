@@ -16,7 +16,8 @@ ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS: false
 # upper bound for integrated information.
 CUT_ONE_APPROXIMATION: false
 # The measure to use when computing phi ("EMD", "KLD", "L1")
-MEASURE: "EMD"
+# MEASURE: "EMD"
+MEASURE: "ENTROPY"
 
 # System resources
 # ~~~~~~~~~~~~~~~~
@@ -74,7 +75,7 @@ LOGGING_CONFIG:
     # `level` can be "DEBUG", "INFO", "WARNING", "ERROR", or "CRITICAL".
     file:
         enabled: true
-        level: "INFO"
+        level: "DEBUG"
         filename: "pyphi.log"
     stdout:
         enabled: true
@@ -99,4 +100,8 @@ SINGLE_NODES_WITH_SELFLOOPS_HAVE_PHI: false
 # Use pretty __str__-like formatting in repr calls
 REPR_VERBOSITY: 2
 # Only consider bipartitions which strictly partition the mechanism.
-PARTITION_MECHANISMS: false
+# PARTITION_MECHANISMS: false
+PARTITION_MECHANISMS: true
+
+BIG_DISTANCE: "DIFFSUM"
+COMPOSITIONAL_CONCEPT: false

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # compute/concept.py
 
+import logging
 import multiprocessing
 from time import time
 
@@ -9,6 +10,8 @@ from . import parallel
 from .distance import constellation_distance
 from .. import config, models, utils
 
+# Create a logger for this module.
+log = logging.getLogger(__name__)
 
 def concept(subsystem, mechanism, purviews=False, past_purviews=False,
             future_purviews=False):
@@ -55,38 +58,55 @@ def _sequential_constellation(subsystem, mechanisms, purviews=False,
     return models.Constellation(filter(None, concepts))
 
 
-def _concept_wrapper(in_queue, out_queue, subsystem, purviews=False,
-                     past_purviews=False, future_purviews=False):
+def _concept_wrapper(in_queue, out_queue, counter, lock, subsystem,
+                     purviews=False, past_purviews=False, future_purviews=False):
     """Wrapper for parallel evaluation of concepts."""
+    import time
     while True:
+        start = time.time()
         mechanism = in_queue.get()
         if mechanism is None:
             break
         new_concept = concept(subsystem, mechanism, purviews=purviews,
                               past_purviews=past_purviews,
                               future_purviews=future_purviews)
+        with lock:
+            counter.value += 1
+
         if new_concept.phi > 0:
             out_queue.put(new_concept)
-    out_queue.put(None)
 
+        duration = time.time() - start
+        log.debug('Mechanism %s took %2.2f seconds' % (str(mechanism), duration))
+
+    out_queue.put(None)
 
 def _parallel_constellation(subsystem, mechanisms, purviews=False,
                             past_purviews=False, future_purviews=False):
 
+    from itertools import tee
+    from multiprocessing import Process, Value, Lock
+
     number_of_processes = parallel.get_num_processes()
+
+    mechanisms, mechanisms_to_count = tee(mechanisms)
+    number_of_mechanisms = len(list(mechanisms_to_count))
 
     # Define input and output queues and load the input queue with all possible
     # cuts and a 'poison pill' for each process.
     in_queue = multiprocessing.Queue()
     out_queue = multiprocessing.Queue()
+    log.debug("%d mechanisms" % number_of_mechanisms)
     for mechanism in mechanisms:
         in_queue.put(mechanism)
     for i in range(number_of_processes):
         in_queue.put(None)
 
     # Initialize the processes and start them.
+    counter = Value('i', 0)
+    lock = Lock()
     for i in range(number_of_processes):
-        args = (in_queue, out_queue, subsystem, purviews,
+        args = (in_queue, out_queue, counter, lock, subsystem, purviews,
                 past_purviews, future_purviews)
         process = multiprocessing.Process(target=_concept_wrapper, args=args)
         process.start()
@@ -94,14 +114,31 @@ def _parallel_constellation(subsystem, mechanisms, purviews=False,
     # Continue to process output queue until all processes have completed, or a
     # 'poison pill' has been returned.
     concepts = []
+    mechanisms_processed = 0
+    _clear_cache = False
     while True:
         new_concept = out_queue.get()
+
         if new_concept is None:
             number_of_processes -= 1
             if number_of_processes == 0:
                 break
         else:
             concepts.append(new_concept)
+
+        p_done = int(100.*(counter.value/number_of_mechanisms))
+
+        if p_done > mechanisms_processed:
+            mechanisms_processed += 1
+            log.debug('%d%% (%d of %d) mechanisms processed...' %
+                      (p_done, counter.value, number_of_mechanisms))
+
+        if p_done > 80 and not _clear_cache:
+            subsystem.clear_caches()
+            _clear_cache = True
+            log.debug("Cleared cache after 50% done")
+
+
     return models.Constellation(concepts)
 
 
