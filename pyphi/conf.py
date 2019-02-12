@@ -27,7 +27,7 @@ The various settings are listed here with their defaults.
 Print the ``config`` object to see the current settings:
 
     >>> print(pyphi.config)  # doctest: +SKIP
-    { 'ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS': False,
+    { 'SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS': False,
       'CACHE_SIAS': False,
       'CACHE_POTENTIAL_PURVIEWS': True,
       'CACHING_BACKEND': 'fs',
@@ -51,7 +51,7 @@ Approximations and theoretical options
 
 These settings control the algorithms PyPhi uses.
 
-- :attr:`~pyphi.conf.PyphiConfig.ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS`
+- :attr:`~pyphi.conf.PyphiConfig.SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
 - :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
 - :attr:`~pyphi.conf.PyphiConfig.PARTITION_TYPE`
@@ -360,7 +360,7 @@ def configure_logging(conf):
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
 
-    ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS = Option(False, doc="""
+    SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS = Option(False, doc="""
     In certain cases, making a cut can actually cause a previously reducible
     concept to become a proper, irreducible concept. Assuming this can never
     happen can increase performance significantly, however the obtained results
