@@ -202,7 +202,7 @@ r"""
 .. |EFFECT| replace:: :const:`~pyphi.direction.Direction.EFFECT`
 .. |EPSILON| replace:: :const:`~pyphi.constants.EPSILON`
 .. |PICK_SMALLEST_PURVIEW| replace:: :const:`~pyphi.config.PICK_SMALLEST_PURVIEW`
-.. |PARTITION_TYPE| replace:: :const:`~pyphi.config.PARTITION_TYPE`
+.. |CONCEPT_PARTITION_TYPE| replace:: :const:`~pyphi.config.PARTITION_TYPE`
 .. |PRECISION| replace:: :const:`~pyphi.config.PRECISION`
 """,
 # Modules

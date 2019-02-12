@@ -20,7 +20,7 @@ CUT_ONE_APPROXIMATION: false
 # The measure to use when computing phi ("EMD", "KLD", "L1", ...)
 DIVERGENCE: "EMD"
 # Controls the number of parts in a partition.
-PARTITION_TYPE: "BI"
+CONCEPT_PARTITION_TYPE: "BI"
 # Controls how to resolve phi-ties when computing MICE.
 PICK_SMALLEST_PURVIEW: false
 # How to compute the difference between cause-effect structures 

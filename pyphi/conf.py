@@ -54,7 +54,7 @@ These settings control the algorithms PyPhi uses.
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
 - :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
-- :attr:`~pyphi.conf.PyphiConfig.PARTITION_TYPE`
+- :attr:`~pyphi.conf.PyphiConfig.CONCEPT_PARTITION_TYPE`
 - :attr:`~pyphi.conf.PyphiConfig.PICK_SMALLEST_PURVIEW`
 - :attr:`~pyphi.conf.PyphiConfig.CES_DISTANCE`
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_CUTS`

@@ -28,7 +28,7 @@ partitioning for actual causation is using the ``'ALL'`` partitions setting;
 smaller purview should be chosen. IIT 3.0 style bipartitions will give
 incorrect results.
 
-    >>> config.PARTITION_TYPE = 'TRI'
+    >>> config.CONCEPT_PARTITION_TYPE = 'TRI'
     >>> config.PICK_SMALLEST_PURVIEW = True
 
 When calculating a causal account of the transition between a set of elements

@@ -308,7 +308,7 @@ def _sia_cache_key(subsystem):
         config.PRECISION,
         config.VALIDATE_SUBSYSTEM_STATES,
         config.SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI,
-        config.PARTITION_TYPE,
+        config.CONCEPT_PARTITION_TYPE,
     )
 
 

@@ -74,7 +74,7 @@ def test_all_cut_mechanisms(kcut_cause):
         (2,), (0, 2), (0, 3), (2, 3), (0, 2, 3)]
 
 
-@config.override(PARTITION_TYPE='TRI')
+@config.override(CONCEPT_PARTITION_TYPE='TRI')
 def test_concept_style_cuts():
     assert list(concept_cuts(Direction.CAUSE, (0,))) == [
         KCut(Direction.CAUSE, KPartition(

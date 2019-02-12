@@ -367,7 +367,7 @@ class PartitionRegistry(Registry):
         ... def no_partitions(mechanism, purview):
         ...    return []
 
-    And use them by setting ``config.PARTITION_TYPE = 'NONE'``
+    And use them by setting ``config.CONCEPT_PARTITION_TYPE = 'NONE'``
     """
     desc = 'partitions'
 
@@ -379,7 +379,7 @@ def mip_partitions(mechanism, purview, node_labels=None):
     """Return a generator over all mechanism-purview partitions, based on the
     current configuration.
     """
-    func = partition_types[config.PARTITION_TYPE]
+    func = partition_types[config.CONCEPT_PARTITION_TYPE]
     return func(mechanism, purview, node_labels)
 
 
@@ -450,7 +450,7 @@ def wedge_partitions(mechanism, purview, node_labels=None):
         ─── ✕ ─── ✕ ───
          B     C     D
 
-    See |PARTITION_TYPE| in |config| for more information.
+    See |CONCEPT_PARTITION_TYPE| in |config| for more information.
 
     Args:
         mechanism (tuple[int]): A mechanism.

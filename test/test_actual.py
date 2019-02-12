@@ -489,7 +489,7 @@ def ac_cut(direction, *parts):
     return models.ActualCut(direction, KPartition(*parts))
 
 
-@config.override(PARTITION_TYPE='TRI')
+@config.override(CONCEPT_PARTITION_TYPE='TRI')
 @pytest.mark.parametrize('direction,answer', [
     (Direction.BIDIRECTIONAL, [
         ac_cut(Direction.CAUSE,
@@ -534,7 +534,7 @@ def test_null_ac_sia(transition):
     assert sia.alpha == float('inf')
 
 
-@config.override(PARTITION_TYPE='TRI')
+@config.override(CONCEPT_PARTITION_TYPE='TRI')
 def test_prevention(prevention):
     assert actual.sia(prevention, Direction.CAUSE).alpha == 0.415037
     assert actual.sia(prevention, Direction.EFFECT).alpha == 0.0
