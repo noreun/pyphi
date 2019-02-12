@@ -351,8 +351,8 @@ def configure_logging(conf):
         },
         'root': {
             'level': 'DEBUG',
-            'handlers': (['file'] if conf.LOG_FILE_LEVEL else []) +
-                        (['stdout'] if conf.LOG_STDOUT_LEVEL else [])
+            'handlers': (['file'] if conf.LOG_FILE_LEVEL else [])
+                        + (['stdout'] if conf.LOG_STDOUT_LEVEL else [])
         }
     })
 
@@ -629,10 +629,12 @@ class PyphiConfig(Config):
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
     SYSTEM_PARTITION_TYPE = Option('3.0_STYLE', values=['3.0_STYLE', 'CONCEPT_STYLE'],
-                         doc="""
+                                   doc="""
     If set to ``'3.0_STYLE'``, then traditional IIT 3.0 cuts will be used when
-    computing |big_phi|. If set to ``'CONCEPT_STYLE'``, then experimental
-    concept-style system cuts will be used instead.""")
+    computing |big_phi|. These are system bipartitions which use the same partitioning 
+    to check both the system's causes and effects. If set to ``'CONCEPT_STYLE'``, then 
+    the system's causes and effects are checked independently with their own K-Partitions,
+    (i.e. systems will have both a cause MIP and an effect MIP, each a K-Partition).""")
 
     def log(self):
         """Log current settings."""
