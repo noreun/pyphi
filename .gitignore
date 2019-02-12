@@ -6,6 +6,7 @@ __pycache__
 .pythonrc*
 .agignore
 .projectile
+.vscode
 **/*.pyc
 **/*.egg-info
 **/*.log
