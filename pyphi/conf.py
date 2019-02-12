@@ -57,7 +57,7 @@ These settings control the algorithms PyPhi uses.
 - :attr:`~pyphi.conf.PyphiConfig.CONCEPT_PARTITION_TYPE`
 - :attr:`~pyphi.conf.PyphiConfig.PICK_SMALLEST_PURVIEW`
 - :attr:`~pyphi.conf.PyphiConfig.CES_DISTANCE`
-- :attr:`~pyphi.conf.PyphiConfig.SYSTEM_CUTS`
+- :attr:`~pyphi.conf.PyphiConfig.SYSTEM_PARTITION_TYPE`
 - :attr:`~pyphi.conf.PyphiConfig.SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI`
 - :attr:`~pyphi.conf.PyphiConfig.VALIDATE_SUBSYSTEM_STATES`
 - :attr:`~pyphi.conf.PyphiConfig.VALIDATE_CONDITIONAL_INDEPENDENCE`
@@ -628,7 +628,7 @@ class PyphiConfig(Config):
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the 
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
-    SYSTEM_CUTS = Option('3.0_STYLE', values=['3.0_STYLE', 'CONCEPT_STYLE'],
+    SYSTEM_PARTITION_TYPE = Option('3.0_STYLE', values=['3.0_STYLE', 'CONCEPT_STYLE'],
                          doc="""
     If set to ``'3.0_STYLE'``, then traditional IIT 3.0 cuts will be used when
     computing |big_phi|. If set to ``'CONCEPT_STYLE'``, then experimental

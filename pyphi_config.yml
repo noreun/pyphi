@@ -27,7 +27,7 @@ PICK_SMALLEST_PURVIEW: false
 # (e.g. "XEMD", "SUM_OF_SMALL_PHI").
 CES_DISTANCE: "XEMD"
 # The type of system cuts to use
-SYSTEM_CUTS: "3.0_STYLE"
+SYSTEM_PARTITION_TYPE: "3.0_STYLE"
 # In some applications of this library, you may want to allow single
 # micro-nodes with a self-loop to have nonzero Phi. See ``pyphi.config`` for
 # details.

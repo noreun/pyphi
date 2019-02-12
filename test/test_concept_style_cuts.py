@@ -133,12 +133,12 @@ def test_sia_concept_style(s):
         assert getattr(sia, attr) is getattr(sia.sia_effect, attr)
 
 
-@config.override(SYSTEM_CUTS='CONCEPT_STYLE')
+@config.override(SYSTEM_PARTITION_TYPE='CONCEPT_STYLE')
 def test_unpickle(s):
     bm = compute.sia(s)
     pickle.loads(pickle.dumps(bm))
 
 
-@config.override(SYSTEM_CUTS='CONCEPT_STYLE')
+@config.override(SYSTEM_PARTITION_TYPE='CONCEPT_STYLE')
 def test_concept_style_phi(s):
     assert compute.phi(s) == 0.6875
