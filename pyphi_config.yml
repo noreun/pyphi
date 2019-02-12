@@ -9,7 +9,7 @@
 # concept to become a proper, irreducible concept. Assuming this can never
 # happen can increase performance significantly, however the obtained results
 # are not strictly accurate.
-SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS: false
+SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS: false
 # When determining the MIP for Φ, this restricts the set of system cuts that
 # are considered to only those that cut the inputs or outputs of a single node.
 # This restricted set of cuts scales linearly with the size of the system; the

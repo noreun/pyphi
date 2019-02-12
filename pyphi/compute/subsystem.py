@@ -127,7 +127,7 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
 
     cut_subsystem = uncut_subsystem.apply_cut(cut)
 
-    if config.SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS:
+    if config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
         mechanisms = unpartitioned_ces.mechanisms
     else:
         # Mechanisms can only produce concepts if they were concepts in the
@@ -302,7 +302,7 @@ def _sia_cache_key(subsystem):
     """
     return (
         hash(subsystem),
-        config.SYSTEM_CUTS_CANNOT_CREATE_NEW_CONCEPTS,
+        config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS,
         config.CUT_ONE_APPROXIMATION,
         config.DIVERGENCE,
         config.PRECISION,
