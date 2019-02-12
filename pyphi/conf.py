@@ -554,7 +554,7 @@ class PyphiConfig(Config):
     are still printed as decimals if the fraction's denominator would be
     large. This only has an effect if ``REPR_VERBOSITY > 0``.""")
 
-    PARTITION_TYPE = Option('BI', doc="""
+    CONCEPT_PARTITION_TYPE = Option('BI', doc="""
     Controls the type of partition used for |small_phi| computations.
 
     If set to ``'BI'``, partitions will have two parts.
@@ -612,7 +612,7 @@ class PyphiConfig(Config):
     |Part| remain undivided - only connections *between* parts are severed.
 
     You can use this new partititioning scheme by setting
-    ``config.PARTITION_TYPE = 'SINGLE_NODE'``.
+    ``config.CONCEPT_PARTITION_TYPE = 'SINGLE_NODE'``.
 
     See :mod:`~pyphi.partition` for more examples.""")
 
