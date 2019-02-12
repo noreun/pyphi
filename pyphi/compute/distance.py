@@ -129,7 +129,7 @@ def ces_distance(C1, C2):
         float: The distance between the two cause-effect structures in concept
         space.
     """
-    if config.USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE:
+    if config.CES_DISTANCE == "SUM_OF_SMALL_PHI":
         return round(small_phi_ces_distance(C1, C2), config.PRECISION)
 
     concepts_only_in_C1 = [

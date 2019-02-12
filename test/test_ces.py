@@ -46,10 +46,10 @@ def test_ces_distance_switches_to_small_phi_difference(s):
     sia = compute.sia(s)
     ce_structures = (sia.ces, sia.partitioned_ces)
 
-    with config.override(USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE=False):
+    with config.override(CES_DISTANCE="XEMD"):
         assert compute.ces_distance(*ce_structures) == 2.3125
 
-    with config.override(USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE=True):
+    with config.override(CES_DISTANCE="SUM_OF_SMALL_PHI"):
         assert compute.ces_distance(*ce_structures) == 1.083333
 
 

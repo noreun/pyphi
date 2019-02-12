@@ -53,10 +53,10 @@ These settings control the algorithms PyPhi uses.
 
 - :attr:`~pyphi.conf.PyphiConfig.ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
-- :attr:`~pyphi.conf.PyphiConfig.MEASURE`
+- :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
 - :attr:`~pyphi.conf.PyphiConfig.PARTITION_TYPE`
 - :attr:`~pyphi.conf.PyphiConfig.PICK_SMALLEST_PURVIEW`
-- :attr:`~pyphi.conf.PyphiConfig.USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE`
+- :attr:`~pyphi.conf.PyphiConfig.CES_DISTANCE`
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_CUTS`
 - :attr:`~pyphi.conf.PyphiConfig.SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI`
 - :attr:`~pyphi.conf.PyphiConfig.VALIDATE_SUBSYSTEM_STATES`
@@ -375,11 +375,12 @@ class PyphiConfig(Config):
     accurate results with modular, sparsely-connected, or homogeneous
     networks.""")
 
-    MEASURE = Option('EMD', doc="""
-    The measure to use when computing distances between repertoires and
-    concepts. A full list of currently installed measures is available by
+    DIVERGENCE = Option('EMD', doc="""
+    The measure to use when computing divergences or distances between repertoires,
+    and concepts. A full list of currently installed measures is available by
     calling ``print(pyphi.distance.measures.all())``. Note that some measures
-    cannot be used for calculating |big_phi| because they are asymmetric.
+    may be unsuitable for use in conjunction with the extended EMD, 
+    (see ``config.CES_DISTANCE``) because they are asymmetric.
 
     Custom measures can be added using the ``pyphi.distance.measures.register``
     decorator. For example::
@@ -391,7 +392,7 @@ class PyphiConfig(Config):
             return 0
 
     This measure can then be used by setting
-    ``config.MEASURE = 'ALWAYS_ZERO'``.
+    ``config.DIVERGENCE = 'ALWAYS_ZERO'``.
 
     If the measure is asymmetric you should register it using the
     ``asymmetric`` keyword argument. See :mod:`~pyphi.distance` for examples.
@@ -507,7 +508,7 @@ class PyphiConfig(Config):
         long-running calculation, consider disabling this for speed.""")
 
     PRECISION = Option(6, doc="""
-    If ``MEASURE`` is ``EMD``, then the Earth Mover's Distance is calculated
+    If ``DIVERGENCE`` is ``EMD``, then the Earth Mover's Distance is calculated
     with an external C++ library that a numerical optimizer to find a good
     approximation. Consequently, systems with analytically zero |big_phi| will
     sometimes be numerically found to have a small but non-zero amount. This
@@ -621,11 +622,11 @@ class PyphiConfig(Config):
     the smallest purview is chosen; otherwise, the one with largest purview is
     chosen.""")
 
-    USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE = Option(False, doc="""
-    If set to ``True``, the distance between cause-effect structures (when
+    CES_DISTANCE = Option("XEMD", doc="""
+    If set to ``XEMD``, the distance between cause-effect structures (when
     computing a |SystemIrreducibilityAnalysis|) is calculated using the
-    difference between the sum of |small_phi| in the cause-effect structures
-    instead of the extended EMD.""")
+    extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the 
+    sum of |small_phi| in the cause-effect structures is used instead. """)
 
     SYSTEM_CUTS = Option('3.0_STYLE', values=['3.0_STYLE', 'CONCEPT_STYLE'],
                          doc="""

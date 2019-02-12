@@ -33,7 +33,7 @@ class MeasureRegistry(Registry):
         ... def always_zero(a, b):
         ...    return 0
 
-    And use them by setting ``config.MEASURE = 'ALWAYS_ZERO'``.
+    And use them by setting ``config.DIVERGENCE = 'ALWAYS_ZERO'``.
     """
     # pylint: disable=arguments-differ
 
@@ -278,10 +278,10 @@ def repertoire_distance(direction, r1, r2):
     Returns:
         float: The distance between ``d1`` and ``d2``, rounded to |PRECISION|.
     """
-    if config.MEASURE == 'EMD':
+    if config.DIVERGENCE == 'EMD':
         dist = directional_emd(direction, r1, r2)
     else:
-        dist = measures[config.MEASURE](r1, r2)
+        dist = measures[config.DIVERGENCE](r1, r2)
 
     return round(dist, config.PRECISION)
 
@@ -296,9 +296,9 @@ def system_repertoire_distance(r1, r2):
     Returns:
         float: The distance between ``r1`` and ``r2``.
     """
-    if config.MEASURE in measures.asymmetric():
+    if config.DIVERGENCE in measures.asymmetric():
         raise ValueError(
             '{} is asymmetric and cannot be used as a system-level '
-            'irreducibility measure.'.format(config.MEASURE))
+            'irreducibility measure.'.format(config.DIVERGENCE))
 
-    return measures[config.MEASURE](r1, r2)
+    return measures[config.DIVERGENCE](r1, r2)

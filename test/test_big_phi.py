@@ -225,10 +225,10 @@ def check_sia(sia, answer):
 
 @config.override(CACHE_SIAS=True)
 def test_sia_cache_key_includes_config_dependencies(s):
-    with config.override(MEASURE='EMD'):
+    with config.override(DIVERGENCE='EMD'):
         emd_big_phi = compute.phi(s)
 
-    with config.override(MEASURE='L1'):
+    with config.override(DIVERGENCE='L1'):
         l1_big_phi = compute.phi(s)
 
     assert l1_big_phi != emd_big_phi
@@ -284,7 +284,7 @@ def test_sia_wrappers(reducible):
 
 
 @config.override(SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI=True)
-@config.override(MEASURE='EMD')
+@config.override(DIVERGENCE='EMD')
 def test_sia_single_micro_node_selfloops_have_phi(noisy_selfloop_single):
     assert compute.sia(noisy_selfloop_single).phi == 0.2736
 
