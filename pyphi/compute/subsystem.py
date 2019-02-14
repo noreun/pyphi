@@ -22,6 +22,77 @@ from .parallel import MapReduce
 log = logging.getLogger(__name__)
 
 
+class ComputeFixedCauseEffectStructure(MapReduce):
+    """Engine for computing a |CauseEffectStructure|, when mechanisms, purvews,
+    and concept partitions are already known or specified, but concept
+    repertoires and irreducibility values are not."""
+    # pylint: disable=unused-argument,arguments-differ
+
+    description = 'Computing concepts'
+
+    @property
+    def subsystem(self):
+        return self.context[0]
+
+    def empty_result(self, *args):
+        return []
+
+    @staticmethod
+    def compute(concept, subsystem):
+        """Recompute the repertories and irreducibility of a |Concept| in the
+        context of a |Subsystem| (usually one with an applied system parition),
+        keeping its mechanism, purview, and partition fixed.
+        """
+        cause = subsystem.mic(concept.mechanism, (concept.cause.purview,),
+                              partitions=((concept.cause.partition,),))
+        effect = subsystem.mie(concept.mechanism, (concept.effect.purview,),
+                               partitions=((concept.effect.partition,),))
+
+        # Don't serialize the subsystem.
+        # This is replaced on the other side of the queue, and ensures
+        # that all concepts in the CES reference the same subsystem.
+        return Concept(mechanism=mechanism, cause=cause, effect=effect,
+                       subsystem=None)
+
+    def process_result(self, new_concept, concepts):
+        """Save all concepts with non-zero |small_phi| to the
+        |CauseEffectStructure|.
+        """
+        if new_concept.phi > 0:
+            # Replace the subsystem
+            new_concept.subsystem = self.subsystem
+            concepts.append(new_concept)
+        return concepts
+
+
+@time_annotated
+def fixed_ces(subsystem, ces, parallel=False):
+    """Return a |CauseEffectStructure|, when mechanisms, purviews, and concept
+    partitions are already known or specified, but concept repertoires and
+    irreducibility values are not.
+
+    Args:
+        subsystem (Subsystem): The subsystem for which to determine the
+            |CauseEffectStructure|.
+        ces (CauseEffectStructure): The |CauseEffectStructure| from which to
+            take the mechanisms, purviews, and partitions.
+
+    Keyword Args:
+        parallel (bool): Whether to recompute concepts in parallel. If
+            ``True``, overrides :data:`config.PARALLEL_CONCEPT_EVALUATION`.
+
+    Returns:
+        CauseEffectStructure: A tuple of every |Concept| in the cause-effect
+        structure specified by `ces`, but with recomputed repertories and
+        irreducibility values.
+    """
+    engine = ComputeFixedCauseEffectStructure(ces, subsystem)
+
+    return CauseEffectStructure(engine.run(parallel or
+                                           config.PARALLEL_CONCEPT_EVALUATION),
+                                subsystem=subsystem)
+
+
 class ComputeCauseEffectStructure(MapReduce):
     """Engine for computing a |CauseEffectStructure|."""
     # pylint: disable=unused-argument,arguments-differ
@@ -127,16 +198,19 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
 
     cut_subsystem = uncut_subsystem.apply_cut(cut)
 
-    if config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
+    # Compute that partitioned CES
+    if not config.RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION:
+        partitioned_ces = fixed_ces(cut_subsystem, unpartitioned_ces)
+    elif config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
         mechanisms = unpartitioned_ces.mechanisms
+        partitioned_ces = ces(cut_subsystem, mechanisms)
     else:
         # Mechanisms can only produce concepts if they were concepts in the
         # original system, or the cut divides the mechanism.
         mechanisms = set(
             unpartitioned_ces.mechanisms +
             list(cut_subsystem.cut_mechanisms))
-
-    partitioned_ces = ces(cut_subsystem, mechanisms)
+        partitioned_ces = ces(cut_subsystem, mechanisms)
 
     log.debug('Finished evaluating %s.', cut)
 
@@ -368,6 +442,24 @@ class ConceptStyleSystem:
             Direction.CAUSE: self.subsystem,
             Direction.EFFECT: self.cut_system
         }[self.direction]
+
+    def mic(self, mechanism, purviews=False, partitions=False):
+        """Return the mechanism's maximally-irreducible cause (|MIC|),
+        using the appropriate system.
+        """
+        return self.cause_system.find_mice(Direction.CAUSE,
+                                           mechanism,
+                                           purviews=purviews,
+                                           partitions=partitions)
+
+    def mie(self, mechanism, purviews=False, partitions=False):
+        """Return the mechanism's maximally-irreducible effect (|MIE|),
+        using the appropriate system.
+        """
+        return self.effect_system.find_mice(Direction.EFFECT,
+                                            mechanism,
+                                            purviews=purviews,
+                                            partitions=partitions)
 
     def concept(self, mechanism, purviews=False, cause_purviews=False,
                 effect_purviews=False):

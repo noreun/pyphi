@@ -51,6 +51,7 @@ Approximations and theoretical options
 
 These settings control the algorithms PyPhi uses.
 
+- :attr:`~pyphi.conf.PyphiConfig.RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION`
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
 - :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
@@ -351,14 +352,21 @@ def configure_logging(conf):
         },
         'root': {
             'level': 'DEBUG',
-            'handlers': (['file'] if conf.LOG_FILE_LEVEL else [])
-                        + (['stdout'] if conf.LOG_STDOUT_LEVEL else [])
+            'handlers': (['file'] if conf.LOG_FILE_LEVEL else []) +
+                        (['stdout'] if conf.LOG_STDOUT_LEVEL else [])
         }
     })
 
 
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
+
+    RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION = Option(True, doc="""
+    In IIT 3.0, we recompute the entire CES after a system partition
+    to obtain the partioned CES. In IIT 4.0, the partitioned CES has
+    exactly the same mechanisms, purviews, and concept partitions as
+    the unpartitioned CES, and only repertoires and phi values can
+    change as a result of a system parition.""")
 
     SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS = Option(False, doc="""
     In certain cases, making a cut can actually cause a previously reducible
@@ -376,11 +384,11 @@ class PyphiConfig(Config):
     networks.""")
 
     DIVERGENCE = Option('EMD', doc="""
-    The measure to use when computing divergences or distances between repertoires,
-    and concepts. A full list of currently installed measures is available by
-    calling ``print(pyphi.distance.measures.all())``. Note that some measures
-    may be unsuitable for use in conjunction with the extended EMD, 
-    (see ``config.CES_DISTANCE``) because they are asymmetric.
+    The measure to use when computing divergences or distances between
+    repertoires, and concepts. A full list of currently installed measures
+    is available by calling ``print(pyphi.distance.measures.all())``. Note
+    that some measures may be unsuitable for use in conjunction with the
+    extended EMD, (see ``config.CES_DISTANCE``) because they are asymmetric.
 
     Custom measures can be added using the ``pyphi.distance.measures.register``
     decorator. For example::
@@ -625,16 +633,17 @@ class PyphiConfig(Config):
     CES_DISTANCE = Option("XEMD", doc="""
     If set to ``XEMD``, the distance between cause-effect structures (when
     computing a |SystemIrreducibilityAnalysis|) is calculated using the
-    extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the 
+    extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
-    SYSTEM_PARTITION_TYPE = Option('3.0_STYLE', values=['3.0_STYLE', 'CONCEPT_STYLE'],
-                                   doc="""
+    SYSTEM_PARTITION_TYPE = Option('3.0_STYLE',
+                                   values=['3.0_STYLE', 'CONCEPT_STYLE'], doc="""
     If set to ``'3.0_STYLE'``, then traditional IIT 3.0 cuts will be used when
-    computing |big_phi|. These are system bipartitions which use the same partitioning 
-    to check both the system's causes and effects. If set to ``'CONCEPT_STYLE'``, then 
-    the system's causes and effects are checked independently with their own K-Partitions,
-    (i.e. systems will have both a cause MIP and an effect MIP, each a K-Partition).""")
+    computing |big_phi|. These are system bipartitions which use the same
+    partitioning to check both the system's causes and effects. If set to
+    ``'CONCEPT_STYLE'``, then the system's causes and effects are checked
+    independently with their own K-Partitions, (i.e. systems will have bo th
+    a cause MIP and an effect MIP, each a K-Partition).""")
 
     def log(self):
         """Log current settings."""
