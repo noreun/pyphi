@@ -78,6 +78,23 @@ class _CutBase:
         """
         return self.cuts_connections(mechanism, mechanism)
 
+    def splits_concept(self, concept):
+        """Check if this cut separates any connections from cause purview
+        elements to mechanism elements, or from mechanism elements to effect
+        purview elements.
+
+        Args:
+            concept: The concept in question.
+
+        Returns:
+            bool: ```True``` if the concept is affected by the cut. ```False```
+            otherwise.
+        """
+        return (self.cuts_connections(concept.cause.purview,
+                                      concept.mechanism) or
+                self.cuts_connections(concept.mechanism,
+                                      concept.effect.purview))
+
     def all_cut_mechanisms(self):
         """Return all mechanisms with elements on both sides of this cut.
 
