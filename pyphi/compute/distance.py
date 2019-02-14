@@ -126,8 +126,7 @@ def ces_distance(C1, C2):
         C2 (CauseEffectStructure): The second |CauseEffectStructure|.
 
     Returns:
-        float: The distance between the two cause-effect structures in concept
-        space.
+        float: The distance between the two cause-effect structures.
     """
     if config.CES_DISTANCE == "SUM_OF_SMALL_PHI":
         return round(small_phi_ces_distance(C1, C2), config.PRECISION)
