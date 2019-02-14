@@ -538,7 +538,7 @@ class Subsystem:
 
         return (phi, partitioned_repertoire)
 
-    def find_mip(self, direction, mechanism, purview):
+    def find_mip(self, direction, mechanism, purview, partitions=False):
         """Return the minimum information partition for a mechanism over a
         purview.
 
@@ -546,6 +546,11 @@ class Subsystem:
             direction (Direction): |CAUSE| or |EFFECT|.
             mechanism (tuple[int]): The nodes in the mechanism.
             purview (tuple[int]): The nodes in the purview.
+
+        Keyword Args:
+            partitions (tuple[tuple[int]]): Restrict partitions checked to
+                those in this collection. If ```False``` (default), check
+                all valid paritions.
 
         Returns:
             RepertoireIrreducibilityAnalysis: The irreducibility analysis for
@@ -580,7 +585,12 @@ class Subsystem:
 
         mip = _null_ria(direction, mechanism, purview, phi=float('inf'))
 
-        for partition in mip_partitions(mechanism, purview, self.node_labels):
+        # If we haven't narrowed down the search space already, check all
+        # possible partitions.
+        if not partitions:
+            partitions = mip_partitions(mechanism, purview, self.node_labels)
+
+        for partition in partitions:
             # Find the distance between the unpartitioned and partitioned
             # repertoire.
             phi, partitioned_repertoire = self.evaluate_partition(
@@ -661,7 +671,7 @@ class Subsystem:
         return irreducible_purviews(self.cm, direction, mechanism, purviews)
 
     @cache.method('_mice_cache')
-    def find_mice(self, direction, mechanism, purviews=False):
+    def find_mice(self, direction, mechanism, purviews=False, partitions=False):
         """Return the |MIC| or |MIE| for a mechanism.
 
         Args:
@@ -674,17 +684,42 @@ class Subsystem:
                 to a subset of the subsystem. This may be useful for _e.g._
                 finding only concepts that are "about" a certain subset of
                 nodes.
+            partitions (tuple[tuple[int]]): Optionally restrict the possible
+                partitions. The ith item is a tuple of partitions to check
+                for the ith purview. Requires that an equal-length list of
+                purviews be provided by the user.
 
         Returns:
             MaximallyIrreducibleCauseOrEffect: The |MIC| or |MIE|.
-        """
-        purviews = self.potential_purviews(direction, mechanism, purviews)
 
-        if not purviews:
+        Raises:
+            ValueError: If partitions are specified, but purviews are not.
+        """
+        if partitions and not purviews:
+            raise ValueError("Must provide purviews if providing partitions.")
+        if partitions and (len(partitions) != len(purviews)):
+            raise ValueError("Must provide at least one partition per purview.")
+
+        # If no purviews were provided, get them all. If purviews were
+        # provided, filter out trivially reducible ones.
+        filtered_purviews = self.potential_purviews(direction, mechanism,
+                                                    purviews)
+
+        # If all purviews are trivially reducible, return a null MICE
+        # immediately.
+        if not filtered_purviews:
             max_mip = _null_ria(direction, mechanism, ())
+        elif partitions:
+            max_mip = max(
+                self.find_mip(direction, mechanism, purview, partitions=x)
+                for (purview, x) in zip(purviews, partitions)
+                if purview in filtered_purviews
+            )
         else:
-            max_mip = max(self.find_mip(direction, mechanism, purview)
-                          for purview in purviews)
+            max_mip = max(
+                self.find_mip(direction, mechanism, purview)
+                for purview in filtered_purviews
+            )
 
         if direction == Direction.CAUSE:
             return MaximallyIrreducibleCause(max_mip)
@@ -692,19 +727,21 @@ class Subsystem:
             return MaximallyIrreducibleEffect(max_mip)
         return validate.direction(direction)
 
-    def mic(self, mechanism, purviews=False):
+    def mic(self, mechanism, purviews=False, partitions=partitions):
         """Return the mechanism's maximally-irreducible cause (|MIC|).
 
         Alias for |find_mice()| with ``direction`` set to |CAUSE|.
         """
-        return self.find_mice(Direction.CAUSE, mechanism, purviews=purviews)
+        return self.find_mice(Direction.CAUSE, mechanism, purviews=purviews,
+                              partitions=partitions)
 
-    def mie(self, mechanism, purviews=False):
+    def mie(self, mechanism, purviews=False, partitions=partitions):
         """Return the mechanism's maximally-irreducible effect (|MIE|).
 
         Alias for |find_mice()| with ``direction`` set to |EFFECT|.
         """
-        return self.find_mice(Direction.EFFECT, mechanism, purviews=purviews)
+        return self.find_mice(Direction.EFFECT, mechanism, purviews=purviews,
+                              partitions=partitions)
 
     def phi_max(self, mechanism):
         """Return the |small_phi_max| of a mechanism.
