@@ -254,19 +254,21 @@ class ComputeSystemIrreducibility(MapReduce):
         return min_sia
 
 
-def system_cuts(nodes, node_labels=None, direction=None):
+def system_cuts(nodes, node_labels=None):
     """Return all |big_phi| cuts for the given nodes.
 
-    This value changes based on :const:`config.CUT_ONE_APPROXIMATION` and
-    :const:`config.SYSTEM_PARTITION_TYPE`.
+    This value changes based on :const:`config.CUT_ONE_APPROXIMATION`.
 
     Args:
         nodes (tuple[int]): The node indices to partition.
     Returns:
         list[Cut]: All unidirectional partitions.
     """
-    bipartitions = system_bipartitions(nodes)
+    # Only True if SINGLE_MICRO_NODES...=True, no?
+    if len(nodes) == 1:
+        return [Cut(nodes, nodes, node_labels)]
 
+    bipartitions = system_bipartitions(nodes)
     return [Cut(bipartition[0], bipartition[1], node_labels)
             for bipartition in bipartitions]
 
@@ -340,14 +342,7 @@ def _sia(cache_key, subsystem):
 
     log.debug('Found unpartitioned CauseEffectStructure.')
 
-    # TODO: move this into sia_bipartitions?
-    # Only True if SINGLE_MICRO_NODES...=True, no?
-    if len(subsystem.cut_indices) == 1:
-        cuts = [Cut(subsystem.cut_indices, subsystem.cut_indices,
-                    subsystem.cut_node_labels)]
-    else:
-        cuts = sia_bipartitions(subsystem.cut_indices,
-                                subsystem.cut_node_labels)
+    cuts = system_cuts(subsystem.cut_indices, subsystem.cut_node_labels)
 
     engine = ComputeSystemIrreducibility(
         cuts, subsystem, unpartitioned_ces)
