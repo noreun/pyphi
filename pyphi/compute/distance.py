@@ -35,7 +35,7 @@ def concept_distance(c1, c2):
                                 c2.expand_effect_repertoire(effect_purview)))
 
 
-def _ces_distance_simple(C1, C2):
+def _ces_distance_emd_simple(C1, C2):
     """Return the distance between two cause-effect structures.
 
     Assumes the only difference between them is that some concepts have
@@ -119,7 +119,8 @@ def _ces_distance_emd(unique_C1, unique_C2):
 
 
 def ces_distance(C1, C2):
-    """Return the distance between two cause-effect structures.
+    """Return the distance between two cause-effect structures. Changes depending on the
+    value of :const:`config.CES_DISTANCE`.
 
     Args:
         C1 (CauseEffectStructure): The first |CauseEffectStructure|.
@@ -129,8 +130,16 @@ def ces_distance(C1, C2):
         float: The distance between the two cause-effect structures.
     """
     if config.CES_DISTANCE == "SUM_OF_SMALL_PHI":
-        return round(small_phi_ces_distance(C1, C2), config.PRECISION)
+        return small_phi_ces_distance(C1, C2)
 
+    if config.CES_DISTANCE == "LARISSA":
+        return ces_distance_larissa(C1, C2)
+
+    return ces_distance_emd(C1, C2)
+
+
+def ces_distance_emd(C1, C2):
+    """Return the XEMD between two |CauseEffectStructure|."""
     concepts_only_in_C1 = [
         c1 for c1 in C1 if not any(c1.emd_eq(c2) for c2 in C2)]
     concepts_only_in_C2 = [
@@ -138,7 +147,7 @@ def ces_distance(C1, C2):
     # If the only difference in the CESs is that some concepts
     # disappeared, then we don't need to use the EMD.
     if not concepts_only_in_C1 or not concepts_only_in_C2:
-        dist = _ces_distance_simple(C1, C2)
+        dist = _ces_distance_emd_simple(C1, C2)
     else:
         dist = _ces_distance_emd(concepts_only_in_C1, concepts_only_in_C2)
 
@@ -148,3 +157,7 @@ def ces_distance(C1, C2):
 def small_phi_ces_distance(C1, C2):
     """Return the difference in |small_phi| between |CauseEffectStructure|."""
     return sum(c.phi for c in C1) - sum(c.phi for c in C2)
+
+
+def ces_distance_larissa(C1, C2):
+    raise NotImplementedError
