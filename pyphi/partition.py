@@ -249,6 +249,27 @@ def directed_tripartition(seq):
                tuple(seq[k] for k in c))
 
 
+def system_bipartitions(seq):
+    """Return all |big_phi| partitions for the given nodes.
+
+    This value changes based on :const:`config.CUT_ONE_APPROXIMATION`.
+
+    Args:
+        seq (Iterable): The sequence to partition.
+
+    Returns:
+        list[tuple[tuple]]: A list of tuples containing each of the two
+        parts.
+    """
+    if config.CUT_ONE_APPROXIMATION:
+        bipartitions = directed_bipartition_of_one(seq)
+    else:
+        # Don't consider trivial partitions where one part is empty
+        bipartitions = directed_bipartition(seq, nontrivial=True)
+
+    return bipartitions
+
+
 # Knuth's algorithm for k-partitions of a set
 # codereview.stackexchange.com/questions/1526/finding-all-k-subset-partitions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

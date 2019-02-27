@@ -12,8 +12,7 @@ import logging
 from .. import Direction, config, connectivity, memory, utils
 from ..models import (CauseEffectStructure, Concept, Cut, KCut,
                       SystemIrreducibilityAnalysis, _null_sia, cmp, fmt)
-from ..partition import (directed_bipartition, directed_bipartition_of_one,
-                         mip_partitions)
+from ..partition import system_bipartitions
 from ..utils import time_annotated
 from .distance import ces_distance
 from .parallel import MapReduce
@@ -51,7 +50,7 @@ class ComputeFixedCauseEffectStructure(MapReduce):
         # Don't serialize the subsystem.
         # This is replaced on the other side of the queue, and ensures
         # that all concepts in the CES reference the same subsystem.
-        return Concept(mechanism=mechanism, cause=cause, effect=effect,
+        return Concept(mechanism=concept.mechanism, cause=cause, effect=effect,
                        subsystem=None)
 
     def process_result(self, new_concept, concepts):
@@ -255,21 +254,18 @@ class ComputeSystemIrreducibility(MapReduce):
         return min_sia
 
 
-def sia_bipartitions(nodes, node_labels=None):
+def system_cuts(nodes, node_labels=None, direction=None):
     """Return all |big_phi| cuts for the given nodes.
 
-    This value changes based on :const:`config.CUT_ONE_APPROXIMATION`.
+    This value changes based on :const:`config.CUT_ONE_APPROXIMATION` and
+    :const:`config.SYSTEM_PARTITION_TYPE`.
 
     Args:
         nodes (tuple[int]): The node indices to partition.
     Returns:
         list[Cut]: All unidirectional partitions.
     """
-    if config.CUT_ONE_APPROXIMATION:
-        bipartitions = directed_bipartition_of_one(nodes)
-    else:
-        # Don't consider trivial partitions where one part is empty
-        bipartitions = directed_bipartition(nodes, nontrivial=True)
+    bipartitions = system_bipartitions(nodes)
 
     return [Cut(bipartition[0], bipartition[1], node_labels)
             for bipartition in bipartitions]
@@ -479,9 +475,9 @@ class ConceptStyleSystem:
         return 'ConceptStyleSystem{}'.format(self.node_indices)
 
 
-def concept_cuts(direction, node_indices, node_labels=None):
+def concept_style_system_cuts(direction, node_indices, node_labels=None):
     """Generator over all concept-syle cuts for these nodes."""
-    for partition in mip_partitions(node_indices, node_indices):
+    for partition in system_bipartitions(node_indices):
         yield KCut(direction, partition, node_labels)
 
 
@@ -493,7 +489,8 @@ def directional_sia(subsystem, direction, unpartitioned_ces=None):
         unpartitioned_ces = _ces(subsystem)
 
     c_system = ConceptStyleSystem(subsystem, direction)
-    cuts = concept_cuts(direction, c_system.cut_indices, subsystem.node_labels)
+    cuts = concept_style_system_cuts(direction, c_system.cut_indices,
+                                     subsystem.node_labels)
 
     # Run the default SIA engine
     # TODO: verify that short-cutting works correctly?
