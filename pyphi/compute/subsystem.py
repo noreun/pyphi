@@ -10,7 +10,7 @@ import functools
 import logging
 
 from .. import Direction, config, connectivity, memory, utils
-from ..models import (CauseEffectStructure, Concept, Cut, KCut,
+from ..models import (CauseEffectStructure, Concept, Cut, Bipartition, Part,
                       SystemIrreducibilityAnalysis, _null_sia, cmp, fmt)
 from ..partition import system_bipartitions
 from ..utils import time_annotated
@@ -473,12 +473,6 @@ class ConceptStyleSystem:
         return 'ConceptStyleSystem{}'.format(self.node_indices)
 
 
-def concept_style_system_cuts(direction, node_indices, node_labels=None):
-    """Generator over all concept-syle cuts for these nodes."""
-    for partition in system_bipartitions(node_indices):
-        yield KCut(direction, partition, node_labels)
-
-
 def directional_sia(subsystem, direction, unpartitioned_ces=None):
     """Calculate a concept-style SystemIrreducibilityAnalysisCause or
     SystemIrreducibilityAnalysisEffect.
@@ -487,8 +481,7 @@ def directional_sia(subsystem, direction, unpartitioned_ces=None):
         unpartitioned_ces = _ces(subsystem)
 
     c_system = ConceptStyleSystem(subsystem, direction)
-    cuts = concept_style_system_cuts(direction, c_system.cut_indices,
-                                     subsystem.node_labels)
+    cuts = system_cuts(c_system.cut_indices, subsystem.node_labels)
 
     # Run the default SIA engine
     # TODO: verify that short-cutting works correctly?
