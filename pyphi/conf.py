@@ -361,7 +361,7 @@ def configure_logging(conf):
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
 
-    RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION = Option(True, doc="""
+    RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION = Option(False, doc="""
     In IIT 3.0, we recompute the entire CES after a system partition
     to obtain the partioned CES. In IIT 4.0, the partitioned CES has
     exactly the same mechanisms, purviews, and concept partitions as
@@ -383,7 +383,7 @@ class PyphiConfig(Config):
     accurate results with modular, sparsely-connected, or homogeneous
     networks.""")
 
-    DIVERGENCE = Option('EMD', doc="""
+    DIVERGENCE = Option('KLM', doc="""
     The measure to use when computing divergences or distances between
     repertoires, and concepts. A full list of currently installed measures
     is available by calling ``print(pyphi.distance.measures.all())``. Note
@@ -410,7 +410,7 @@ class PyphiConfig(Config):
     Controls whether concepts are evaluated in parallel when computing
     cause-effect structures.""")
 
-    PARALLEL_CUT_EVALUATION = Option(True, doc="""
+    PARALLEL_CUT_EVALUATION = Option(False, doc="""
     Controls whether system cuts are evaluated in parallel, which is faster but
     requires more memory. If cuts are evaluated sequentially, only two
     |SystemIrreducibilityAnalysis| instances need to be in memory at once.""")
@@ -439,12 +439,12 @@ class PyphiConfig(Config):
     manage the results explicitly, rather than relying on the cache. For this
     reason it is disabled by default.""")
 
-    CACHE_REPERTOIRES = Option(True, doc="""
+    CACHE_REPERTOIRES = Option(False, doc="""
     PyPhi caches cause and effect repertoires. This greatly improves speed, but
     can consume a significant amount of memory. If you are experiencing memory
     issues, try disabling this.""")
 
-    CACHE_POTENTIAL_PURVIEWS = Option(True, doc="""
+    CACHE_POTENTIAL_PURVIEWS = Option(False, doc="""
     Controls whether the potential purviews of mechanisms of a network are
     cached. Caching speeds up computations by not recomputing expensive
     reducibility checks, but uses additional memory.""")
@@ -562,7 +562,7 @@ class PyphiConfig(Config):
     are still printed as decimals if the fraction's denominator would be
     large. This only has an effect if ``REPR_VERBOSITY > 0``.""")
 
-    CONCEPT_PARTITION_TYPE = Option('BI', doc="""
+    CONCEPT_PARTITION_TYPE = Option('ALL', doc="""
     Controls the type of partition used for |small_phi| computations.
 
     If set to ``'BI'``, partitions will have two parts.
@@ -630,13 +630,13 @@ class PyphiConfig(Config):
     the smallest purview is chosen; otherwise, the one with largest purview is
     chosen.""")
 
-    CES_DISTANCE = Option("XEMD", doc="""
+    CES_DISTANCE = Option("SUM_OF_SMALL_PHI", doc="""
     If set to ``XEMD``, the distance between cause-effect structures (when
     computing a |SystemIrreducibilityAnalysis|) is calculated using the
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
-    SYSTEM_PARTITION_TYPE = Option('3.0_STYLE',
+    SYSTEM_PARTITION_TYPE = Option('CONCEPT_STYLE',
                                    values=['3.0_STYLE', 'CONCEPT_STYLE'], doc="""
     If set to ``'3.0_STYLE'``, then traditional IIT 3.0 cuts will be used when
     computing |big_phi|. These are system bipartitions which use the same
