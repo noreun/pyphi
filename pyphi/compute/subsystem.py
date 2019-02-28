@@ -50,8 +50,12 @@ class ComputeFixedCauseEffectStructure(MapReduce):
         # Don't serialize the subsystem.
         # This is replaced on the other side of the queue, and ensures
         # that all concepts in the CES reference the same subsystem.
-        return Concept(mechanism=concept.mechanism, cause=cause, effect=effect,
-                       subsystem=None)
+        # However, we need to create the concept with a subsystem object, so that it gets
+        # the proper node labels.
+        new_concept = Concept(mechanism=concept.mechanism, cause=cause, effect=effect,
+                               subsystem=subsystem)
+        new_concept.subsystem = None
+        return new_concept
 
     def process_result(self, new_concept, concepts):
         """Save all concepts, even those with zero |small_phi|, to the
