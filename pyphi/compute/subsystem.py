@@ -43,9 +43,9 @@ class ComputeFixedCauseEffectStructure(MapReduce):
         keeping its mechanism, purview, and partition fixed.
         """
         cause = subsystem.mic(concept.mechanism, (concept.cause.purview,),
-                              partitions=((concept.cause.partition,),))
+                              partitions=((concept.cause.mip,),))
         effect = subsystem.mie(concept.mechanism, (concept.effect.purview,),
-                               partitions=((concept.effect.partition,),))
+                               partitions=((concept.effect.mip,),))
 
         # Don't serialize the subsystem.
         # This is replaced on the other side of the queue, and ensures
