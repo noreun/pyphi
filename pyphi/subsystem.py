@@ -727,7 +727,7 @@ class Subsystem:
             return MaximallyIrreducibleEffect(max_mip)
         return validate.direction(direction)
 
-    def mic(self, mechanism, purviews=False, partitions=partitions):
+    def mic(self, mechanism, purviews=False, partitions=False):
         """Return the mechanism's maximally-irreducible cause (|MIC|).
 
         Alias for |find_mice()| with ``direction`` set to |CAUSE|.
@@ -735,7 +735,7 @@ class Subsystem:
         return self.find_mice(Direction.CAUSE, mechanism, purviews=purviews,
                               partitions=partitions)
 
-    def mie(self, mechanism, purviews=False, partitions=partitions):
+    def mie(self, mechanism, purviews=False, partitions=False):
         """Return the mechanism's maximally-irreducible effect (|MIE|).
 
         Alias for |find_mice()| with ``direction`` set to |EFFECT|.
