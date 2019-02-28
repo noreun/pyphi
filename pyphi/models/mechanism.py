@@ -334,6 +334,7 @@ _concept_attributes = ['phi', 'mechanism', 'cause', 'effect', 'subsystem']
 
 # TODO: make mechanism a property
 # TODO: make phi a property
+# TODO: allow specification of node_labels when a subsystem is not provided.
 class Concept(cmp.Orderable):
     """The maximally irreducible cause and effect specified by a mechanism.
 
