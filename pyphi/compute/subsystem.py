@@ -54,13 +54,12 @@ class ComputeFixedCauseEffectStructure(MapReduce):
                        subsystem=None)
 
     def process_result(self, new_concept, concepts):
-        """Save all concepts with non-zero |small_phi| to the
+        """Save all concepts, even those with zero |small_phi|, to the
         |CauseEffectStructure|.
         """
-        if new_concept.phi > 0:
-            # Replace the subsystem
-            new_concept.subsystem = self.subsystem
-            concepts.append(new_concept)
+        # Replace the subsystem
+        new_concept.subsystem = self.subsystem
+        concepts.append(new_concept)
         return concepts
 
 
