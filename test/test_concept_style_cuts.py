@@ -5,8 +5,7 @@ import pytest
 
 from pyphi import Direction, compute, config
 from pyphi.compute import (ConceptStyleSystem,
-                           SystemIrreducibilityAnalysisConceptStyle,
-                           concept_style_system_cuts)
+                           SystemIrreducibilityAnalysisConceptStyle)
 from pyphi.models import KCut, KPartition, Part
 from test_models import sia
 
@@ -72,17 +71,6 @@ def test_splits_mechanism(kcut_cause):
 def test_all_cut_mechanisms(kcut_cause):
     assert list(kcut_cause.all_cut_mechanisms()) == [
         (2,), (0, 2), (0, 3), (2, 3), (0, 2, 3)]
-
-
-@config.override(CONCEPT_PARTITION_TYPE='TRI')
-def test_concept_style_system_cuts():
-    assert list(concept_style_system_cuts(Direction.CAUSE, (0,))) == [
-        KCut(Direction.CAUSE, KPartition(
-            Part((), ()), Part((), (0,)), Part((0,), ())))]
-    assert list(concept_style_system_cuts(Direction.EFFECT, (0,))) == [
-        KCut(Direction.EFFECT, KPartition(
-            Part((), ()), Part((), (0,)), Part((0,), ())))]
-
 
 def test_kcut_equality(kcut_cause, kcut_effect):
     other = KCut(Direction.CAUSE, KPartition(
