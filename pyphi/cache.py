@@ -339,10 +339,10 @@ class RedisMICECache(RedisCache):
         if not self.subsystem.is_cut:
             super().set(key, value)
 
-    def key(self, direction, mechanism, purviews=False, _prefix=None):
+    def key(self, direction, mechanism, purviews=False, partitions=False, _prefix=None):
         """Cache key. This is the call signature of |Subsystem.find_mice()|."""
-        return "subsys:{}:{}:{}:{}:{}".format(
-            self.subsystem_hash, _prefix, direction, mechanism, purviews)
+        return "subsys:{}:{}:{}:{}:{}:{}".format(
+            self.subsystem_hash, _prefix, direction, mechanism, purviews, partitions)
 
 
 class DictMICECache(DictCache):
@@ -388,9 +388,9 @@ class DictMICECache(DictCache):
                 not memory_full()):
             self.cache[key] = mice
 
-    def key(self, direction, mechanism, purviews=False, _prefix=None):
+    def key(self, direction, mechanism, purviews=False, partitions=False, _prefix=None):
         """Cache key. This is the call signature of |Subsystem.find_mice()|."""
-        return (_prefix, direction, mechanism, purviews)
+        return (_prefix, direction, mechanism, purviews, partitions)
 
 
 def MICECache(subsystem, parent_cache=None):
