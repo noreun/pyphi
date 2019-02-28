@@ -386,7 +386,7 @@ def _sia_cache_key(subsystem):
 # value of the computation.
 @functools.wraps(_sia)
 def sia(subsystem):  # pylint: disable=missing-docstring
-    if config.SYSTEM_PARTITION_TYPE == 'CONCEPT_STYLE':
+    if config.CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY:
         return sia_concept_style(subsystem)
 
     return _sia(_sia_cache_key(subsystem), subsystem)

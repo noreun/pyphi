@@ -26,8 +26,8 @@ Attributes:
 
 # pylint: disable=unused-import
 
-from .subsystem import (sia, phi, evaluate_cut, ConceptStyleSystem,
-                        sia_concept_style, SystemIrreducibilityAnalysisConceptStyle,
+from .subsystem import (sia, phi, evaluate_cut, ConceptStyleSystem, sia_concept_style,
+                        SystemIrreducibilityAnalysisConceptStyle,
                         conceptual_info, ces)
 from .network import (all_complexes, complexes, condensed, major_complex,
                       possible_complexes, subsystems)

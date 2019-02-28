@@ -18,16 +18,16 @@ SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS: false
 # modular, sparsely-connected, or homogeneous networks.
 CUT_ONE_APPROXIMATION: false
 # The measure to use when computing phi ("EMD", "KLD", "L1", ...)
-DIVERGENCE: "EMD"
+DIVERGENCE: "KLM"
 # Controls the number of parts in a partition.
-CONCEPT_PARTITION_TYPE: "BI"
+CONCEPT_PARTITION_TYPE: "ALL"
 # Controls how to resolve phi-ties when computing MICE.
 PICK_SMALLEST_PURVIEW: false
-# How to compute the difference between cause-effect structures 
+# How to compute the difference between cause-effect structures
 # (e.g. "XEMD", "SUM_OF_SMALL_PHI").
-CES_DISTANCE: "XEMD"
+CES_DISTANCE: "SUM_OF_SMALL_PHI"
 # The type of system cuts to use
-SYSTEM_PARTITION_TYPE: "3.0_STYLE"
+CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY: true
 # In some applications of this library, you may want to allow single
 # micro-nodes with a self-loop to have nonzero Phi. See ``pyphi.config`` for
 # details.
@@ -45,7 +45,7 @@ PARALLEL_CONCEPT_EVALUATION: false
 # Controls whether cuts are evaluated in parallel, which requires more memory.
 # If cuts are evaluated sequentially, only two SIAs need to be in memory at a
 # time.
-PARALLEL_CUT_EVALUATION: true
+PARALLEL_CUT_EVALUATION: false
 # Controls whether complexes are evaluated in parallel.
 PARALLEL_COMPLEX_EVALUATION: false
 # The number of CPU cores to use in parallel cut evaluation. -1 means all
@@ -60,11 +60,11 @@ MAXIMUM_CACHE_MEMORY_PERCENTAGE: 100
 # Controls whether SIAs are cached.
 CACHE_SIAS: false
 # Controls whether cause and effect repertoires are cached.
-CACHE_REPERTOIRES: true
+CACHE_REPERTOIRES: false
 # Controls whether the potential purviews of the mechanisms of a network are
 # cached. Speeds up calculations when the same network is used repeatedly, but
 # takes up additional memory, and makes network initialization slow.
-CACHE_POTENTIAL_PURVIEWS: true
+CACHE_POTENTIAL_PURVIEWS: false
 # Controls whether subsystem caches are automatically cleared after computing
 # the SIA for the subsystem.
 CLEAR_SUBSYSTEM_CACHES_AFTER_COMPUTING_SIA: false

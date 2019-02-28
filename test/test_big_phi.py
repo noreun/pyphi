@@ -517,8 +517,8 @@ def test_system_cuts():
 
 
 def test_system_cut_styles(s):
-    with config.override(SYSTEM_PARTITION_TYPE='3.0_STYLE'):
+    with config.override(CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY=False):
         assert compute.phi(s) == 2.3125
 
-    with config.override(SYSTEM_PARTITION_TYPE='CONCEPT_STYLE'):
+    with config.override(CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY=True):
         assert compute.phi(s) == 0.6875
