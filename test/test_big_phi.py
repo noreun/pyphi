@@ -8,7 +8,7 @@ import pytest
 
 from pyphi import Network, Subsystem, compute, config, constants, models, utils
 from pyphi.compute.subsystem import (ComputeSystemIrreducibility,
-                                     sia_bipartitions)
+                                     system_cuts)
 
 # pylint: disable=unused-argument
 
@@ -301,7 +301,7 @@ def test_sia_single_micro_nodes_without_selfloops_dont_have_phi(s_single):
 @pytest.fixture
 def standard_ComputeSystemIrreducibility(s):
     ces = compute.ces(s)
-    cuts = sia_bipartitions(s.node_indices)
+    cuts = system_cuts(s.node_indices)
     return ComputeSystemIrreducibility(cuts, s, ces)
 
 
@@ -322,7 +322,7 @@ def test_find_sia_parallel_standard_example(
 @pytest.fixture
 def s_noised_ComputeSystemIrreducibility(s_noised):
     ces = compute.ces(s_noised)
-    cuts = sia_bipartitions(s_noised.node_indices)
+    cuts = system_cuts(s_noised.node_indices)
     return ComputeSystemIrreducibility(cuts, s_noised, ces)
 
 
@@ -342,7 +342,7 @@ def test_find_sia_parallel_noised_example(s_noised_ComputeSystemIrreducibility):
 @pytest.fixture
 def micro_s_ComputeSystemIrreducibility(micro_s):
     ces = compute.ces(micro_s)
-    cuts = sia_bipartitions(micro_s.node_indices)
+    cuts = system_cuts(micro_s.node_indices)
     return ComputeSystemIrreducibility(cuts, micro_s, ces)
 
 
@@ -486,7 +486,7 @@ def test_sia_macro(macro_s):
     check_sia(sia, macro_answer)
 
 
-def test_sia_bipartitions():
+def test_system_cuts():
     with config.override(CUT_ONE_APPROXIMATION=False):
         answer = [models.Cut((1,), (2, 3, 4)),
                   models.Cut((2,), (1, 3, 4)),
@@ -502,7 +502,7 @@ def test_sia_bipartitions():
                   models.Cut((3, 4), (1, 2)),
                   models.Cut((1, 3, 4), (2,)),
                   models.Cut((2, 3, 4), (1,))]
-        assert sia_bipartitions((1, 2, 3, 4)) == answer
+        assert system_cuts((1, 2, 3, 4)) == answer
 
     with config.override(CUT_ONE_APPROXIMATION=True):
         answer = [models.Cut((1,), (2, 3, 4)),
@@ -513,7 +513,7 @@ def test_sia_bipartitions():
                   models.Cut((1, 3, 4), (2,)),
                   models.Cut((1, 2, 4), (3,)),
                   models.Cut((1, 2, 3), (4,))]
-        assert sia_bipartitions((1, 2, 3, 4)) == answer
+        assert system_cuts((1, 2, 3, 4)) == answer
 
 
 def test_system_cut_styles(s):
