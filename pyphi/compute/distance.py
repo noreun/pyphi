@@ -132,9 +132,6 @@ def ces_distance(C1, C2):
     if config.CES_DISTANCE == "SUM_OF_SMALL_PHI":
         return small_phi_ces_distance(C1, C2)
 
-    if config.CES_DISTANCE == "LARISSA":
-        return ces_distance_larissa(C1, C2)
-
     return ces_distance_emd(C1, C2)
 
 
@@ -157,7 +154,3 @@ def ces_distance_emd(C1, C2):
 def small_phi_ces_distance(C1, C2):
     """Return the difference in |small_phi| between |CauseEffectStructure|."""
     return sum(c.phi for c in C1) - sum(c.phi for c in C2)
-
-
-def ces_distance_larissa(C1, C2):
-    raise NotImplementedError
