@@ -22,9 +22,8 @@ log = logging.getLogger(__name__)
 
 
 class ComputeFixedCauseEffectStructure(MapReduce):
-    """Engine for computing a |CauseEffectStructure|, when mechanisms, purvews,
-    and concept partitions are already known or specified, but concept
-    repertoires and irreducibility values are not."""
+    """Engine for computing a |CauseEffectStructure|, when mechanisms and purviews
+    are already known or specified."""
     # pylint: disable=unused-argument,arguments-differ
 
     description = 'Computing concepts'
@@ -40,20 +39,15 @@ class ComputeFixedCauseEffectStructure(MapReduce):
     def compute(concept, subsystem):
         """Recompute the repertories and irreducibility of a |Concept| in the
         context of a |Subsystem| (usually one with an applied system parition),
-        keeping its mechanism, purview, and partition fixed.
+        keeping its mechanism and purviews fixed.
         """
-        cause = subsystem.mic(concept.mechanism, (concept.cause.purview,),
-                              partitions=((concept.cause.mip,),))
-        effect = subsystem.mie(concept.mechanism, (concept.effect.purview,),
-                               partitions=((concept.effect.mip,),))
+        new_concept = subsystem.concept(concept.mechanism,
+                                        cause_purviews=(concept.cause.purview,),
+                                        effect_purviews=(concept.effect.purview,))
 
         # Don't serialize the subsystem.
         # This is replaced on the other side of the queue, and ensures
         # that all concepts in the CES reference the same subsystem.
-        # However, we need to create the concept with a subsystem object, so that it gets
-        # the proper node labels.
-        new_concept = Concept(mechanism=concept.mechanism, cause=cause, effect=effect,
-                               subsystem=subsystem)
         new_concept.subsystem = None
         return new_concept
 
@@ -69,9 +63,8 @@ class ComputeFixedCauseEffectStructure(MapReduce):
 
 @time_annotated
 def fixed_ces(subsystem, ces, parallel=False):
-    """Return a |CauseEffectStructure|, when mechanisms, purviews, and concept
-    partitions are already known or specified, but concept repertoires and
-    irreducibility values are not.
+    """Return a |CauseEffectStructure|, when mechanisms, purviews, and purviews are
+    already known or specified.
 
     Args:
         subsystem (Subsystem): The subsystem for which to determine the
@@ -201,7 +194,7 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
     cut_subsystem = uncut_subsystem.apply_cut(cut)
 
     # Compute that partitioned CES
-    if not config.RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION:
+    if config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
         partitioned_ces = fixed_ces(cut_subsystem, unpartitioned_ces)
     elif config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
         mechanisms = unpartitioned_ces.mechanisms

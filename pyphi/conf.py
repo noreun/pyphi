@@ -51,7 +51,7 @@ Approximations and theoretical options
 
 These settings control the algorithms PyPhi uses.
 
-- :attr:`~pyphi.conf.PyphiConfig.RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION`
+- :attr:`~pyphi.conf.PyphiConfig.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION`
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
 - :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
@@ -361,12 +361,11 @@ def configure_logging(conf):
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
 
-    RECOMPUTE_ENTIRE_CES_AFTER_SYSTEM_PARTITION = Option(False, doc="""
+    ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION = Option(True, doc="""
     In IIT 3.0, we recompute the entire CES after a system partition
     to obtain the partioned CES. In IIT 4.0, the partitioned CES has
-    exactly the same mechanisms, purviews, and concept partitions as
-    the unpartitioned CES, and only repertoires and phi values can
-    change as a result of a system parition.""")
+    exactly the same mechanisms and purviews as the unpartitioned CES,
+    and only concept MIPS can change as a result of a system parition.""")
 
     SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS = Option(False, doc="""
     In certain cases, making a cut can actually cause a previously reducible
