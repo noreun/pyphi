@@ -635,6 +635,10 @@ class PyphiConfig(Config):
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
+    SYSTEM_PARTITION_TYPE = Option("BIDIRECTIONAL", doc="""
+    Controls whether system partitions are ``BIDIRECTIONAL`` (i.e. one cannot cut A->B
+    without also cutting B->A) or ``UNIDIRECTIONAL``.""")
+
     CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY = Option(True, values=[True, False],
     doc=""" If set to ``False``, then traditional IIT 3.0 cuts will be used when
     computing |big_phi|. These are system bipartitions which use the same

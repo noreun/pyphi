@@ -19,25 +19,26 @@ MEDIUM = 1
 HIGH   = 2
 
 # Unicode symbols
-SMALL_PHI           = '\u03C6'
-BIG_PHI             = '\u03A6'
-ALPHA               = '\u03B1'
-TOP_LEFT_CORNER     = '\u250C'
-TOP_RIGHT_CORNER    = '\u2510'
-BOTTOM_LEFT_CORNER  = '\u2514'
-BOTTOM_RIGHT_CORNER = '\u2518'
-HORIZONTAL_BAR      = '\u2500'
-VERTICAL_SIDE       = '\u2502'
-HEADER_BAR_1        = '\u2550'
-HEADER_BAR_2        = '\u2501'
-HEADER_BAR_3        = '\u254D'
-DOTTED_HEADER       = '\u2574'
-LINE                = '\u2501'
-CUT_SYMBOL          = LINE * 2 + '/ /' + LINE * 2 + '\u27A4'
-EMPTY_SET           = '\u2205'
-MULTIPLY            = '\u2715'
-ARROW_LEFT          = '\u25C0' + LINE * 2
-ARROW_RIGHT         = LINE * 2 + '\u25B6'
+SMALL_PHI                 = '\u03C6'
+BIG_PHI                   = '\u03A6'
+ALPHA                     = '\u03B1'
+TOP_LEFT_CORNER           = '\u250C'
+TOP_RIGHT_CORNER          = '\u2510'
+BOTTOM_LEFT_CORNER        = '\u2514'
+BOTTOM_RIGHT_CORNER       = '\u2518'
+HORIZONTAL_BAR            = '\u2500'
+VERTICAL_SIDE             = '\u2502'
+HEADER_BAR_1              = '\u2550'
+HEADER_BAR_2              = '\u2501'
+HEADER_BAR_3              = '\u254D'
+DOTTED_HEADER             = '\u2574'
+LINE                      = '\u2501'
+ARROW_LEFT                = '\u25C0' + LINE * 2
+ARROW_RIGHT               = LINE * 2 + '\u25B6'
+UNIDIRECTIONAL_CUT_SYMBOL = LINE * 2 + '/ /' + ARROW_RIGHT
+BIDIRECTIONAL_CUT_SYMBOL  = ARROW_LEFT + '/ /' + ARROW_RIGHT
+EMPTY_SET                 = '\u2205'
+MULTIPLY                  = '\u2715'
 
 NICE_DENOMINATORS   = list(range(16)) + [16, 32, 64, 128]
 
@@ -362,9 +363,12 @@ def fmt_ria(ria, verbose=True, mip=False):
 
 def fmt_cut(cut):
     """Format a |Cut|."""
+    cut_symbol = {
+        "UNIDIRECTIONAL": UNIDIRECTIONAL_CUT_SYMBOL,
+        "BIDIRECTIONAL": BIDIRECTIONAL_CUT_SYMBOL}[config.SYSTEM_PARTITION_TYPE]
     return 'Cut {from_nodes} {symbol} {to_nodes}'.format(
         from_nodes=fmt_mechanism(cut.from_nodes, cut.node_labels),
-        symbol=CUT_SYMBOL,
+        symbol=cut_symbol,
         to_nodes=fmt_mechanism(cut.to_nodes, cut.node_labels))
 
 

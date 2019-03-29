@@ -10,9 +10,9 @@ import functools
 import logging
 
 from .. import Direction, config, connectivity, memory, utils
-from ..models import (CauseEffectStructure, Concept, Cut, Bipartition, Part,
-                      SystemIrreducibilityAnalysis, _null_sia, cmp, fmt)
-from ..partition import system_bipartitions
+from ..models import (CauseEffectStructure, Concept, SystemIrreducibilityAnalysis,
+                      _null_sia, cmp, fmt)
+from ..partition import system_cuts
 from ..utils import time_annotated
 from .distance import ces_distance
 from .parallel import MapReduce
@@ -248,25 +248,6 @@ class ComputeSystemIrreducibility(MapReduce):
             return new_sia
 
         return min_sia
-
-
-def system_cuts(nodes, node_labels=None):
-    """Return all |big_phi| cuts for the given nodes.
-
-    This value changes based on :const:`config.CUT_ONE_APPROXIMATION`.
-
-    Args:
-        nodes (tuple[int]): The node indices to partition.
-    Returns:
-        list[Cut]: All unidirectional partitions.
-    """
-    # Only True if SINGLE_MICRO_NODES...=True, no?
-    if len(nodes) == 1:
-        return [Cut(nodes, nodes, node_labels)]
-
-    bipartitions = system_bipartitions(nodes)
-    return [Cut(bipartition[0], bipartition[1], node_labels)
-            for bipartition in bipartitions]
 
 
 def _ces(subsystem):
