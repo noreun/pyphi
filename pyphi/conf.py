@@ -635,7 +635,7 @@ class PyphiConfig(Config):
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead. """)
 
-    SYSTEM_PARTITION_TYPE = Option("BIDIRECTIONAL", doc="""
+    SYSTEM_PARTITION_TYPE = Option("UNIDIRECTIONAL", doc="""
     Controls whether system partitions are ``BIDIRECTIONAL`` (i.e. one cannot cut A->B
     without also cutting B->A) or ``UNIDIRECTIONAL``.""")
 
