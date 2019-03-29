@@ -366,8 +366,9 @@ class PyphiConfig(Config):
     to obtain the partioned CES. In IIT 4.0, the partitioned CES has
     exactly the same mechanisms and purviews as the unpartitioned CES,
     and only concept MIPS can change as a result of a system parition.""")
+    # TODO: If this is True, SYSTEM_PARITIONS_CANNOT_CREATE_NEW_CONCEPTS should be True.
 
-    SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS = Option(False, doc="""
+    SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS = Option(True, doc="""
     In certain cases, making a cut can actually cause a previously reducible
     concept to become a proper, irreducible concept. Assuming this can never
     happen can increase performance significantly, however the obtained results
@@ -382,7 +383,7 @@ class PyphiConfig(Config):
     accurate results with modular, sparsely-connected, or homogeneous
     networks.""")
 
-    DIVERGENCE = Option('KLM', doc="""
+    DIVERGENCE = Option('KLD', doc="""
     The measure to use when computing divergences or distances between
     repertoires, and concepts. A full list of currently installed measures
     is available by calling ``print(pyphi.distance.measures.all())``. Note
@@ -623,17 +624,24 @@ class PyphiConfig(Config):
 
     See :mod:`~pyphi.partition` for more examples.""")
 
-    PICK_SMALLEST_PURVIEW = Option(False, doc="""
+    PICK_SMALLEST_PURVIEW = Option(True, doc="""
     When computing a |MIC| or |MIE|, it is possible for several MIPs to have
     the same |small_phi| value. If this setting is set to ``True`` the MIP with
     the smallest purview is chosen; otherwise, the one with largest purview is
     chosen.""")
 
-    CES_DISTANCE = Option("SUM_OF_SMALL_PHI", doc="""
+    CONCEPTS_MUST_HAVE_BOTH_CAUSES_AND_EFFECTS = Option(False, doc="""
+    When computing a |CauseEffectStructure|, control whether a concept must have both
+    an irreducible cause and an irreudcible effect in order to be included in the CES.
+    If ``False``, neither a cause nor effect is required. """)
+
+    CES_DISTANCE = Option("COMPOSITIONAL", doc="""
     If set to ``XEMD``, the distance between cause-effect structures (when
     computing a |SystemIrreducibilityAnalysis|) is calculated using the
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
-    sum of |small_phi| in the cause-effect structures is used instead. """)
+    sum of |small_phi| in the cause-effect structures is used instead.""")
+    # TODO: If set to "COMPOSITIONAL", CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY
+    # should be True.
 
     CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY = Option(True, values=[True, False],
     doc=""" If set to ``False``, then traditional IIT 3.0 cuts will be used when

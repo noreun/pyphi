@@ -8,7 +8,7 @@ Functions for computing distances between various PyPhi objects.
 
 import numpy as np
 
-from .. import config, utils
+from .. import Direction, config, utils
 from ..distance import emd
 from ..distance import system_repertoire_distance as repertoire_distance
 
@@ -129,10 +129,11 @@ def ces_distance(C1, C2):
     Returns:
         float: The distance between the two cause-effect structures.
     """
-    if config.CES_DISTANCE == "SUM_OF_SMALL_PHI":
-        return small_phi_ces_distance(C1, C2)
-
-    return ces_distance_emd(C1, C2)
+    return {
+        "XEMD": ces_distance_emd,
+        "SUM_OF_SMALL_PHI": small_phi_ces_distance,
+        "COMPOSITIONAL": compositional_ces_distance
+    }[config.CES_DISTANCE](C1, C2)
 
 
 def ces_distance_emd(C1, C2):
@@ -154,3 +155,12 @@ def ces_distance_emd(C1, C2):
 def small_phi_ces_distance(C1, C2):
     """Return the difference in |small_phi| between |CauseEffectStructure|."""
     return sum(c.phi for c in C1) - sum(c.phi for c in C2)
+
+
+def compositional_ces_distance(C1, C2):
+    cut_direction = C2[0].subsystem.direction
+    assert(all(c.subsystem.direction == cut_direction for c in C2))
+    return {
+        Direction.CAUSE: sum(c.cause.phi for c in C1) - sum(c.cause.phi for c in C2),
+        Direction.EFFECT: sum(c.effect.phi for c in C1) - sum(c.effect.phi for c in C2)
+    }[cut_direction]

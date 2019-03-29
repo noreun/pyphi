@@ -121,7 +121,7 @@ class ComputeCauseEffectStructure(MapReduce):
         """Save all concepts with non-zero |small_phi| to the
         |CauseEffectStructure|.
         """
-        if new_concept.phi > 0:
+        if not config.CONCEPTS_MUST_HAVE_BOTH_CAUSES_AND_EFFECTS or new_concept.phi > 0:
             # Replace the subsystem
             new_concept.subsystem = self.subsystem
             concepts.append(new_concept)
@@ -392,7 +392,8 @@ def phi(subsystem):
 
 class ConceptStyleSystem:
     """A functional replacement for ``Subsystem`` implementing concept-style
-    system cuts.
+    system cuts. The subsystem.direction is the direction (CAUSE or EFFECT),
+    in which the cut is applied.
     """
 
     def __init__(self, subsystem, direction, cut=None):
