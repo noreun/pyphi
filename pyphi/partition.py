@@ -10,7 +10,7 @@ from itertools import chain, permutations, product
 
 from . import config
 from .cache import cache
-from .models import Bipartition, KPartition, Part, Tripartition
+from .models import Bipartition, KPartition, Part, Tripartition, Cut
 from .registry import Registry
 
 
@@ -73,7 +73,7 @@ def bipartition_indices(N):
 
 
 # TODO? rename to `bipartitions`
-def bipartition(seq):
+def bipartition(seq, nontrivial=False):
     """Return a list of bipartitions for a sequence.
 
     Args:
@@ -87,9 +87,15 @@ def bipartition(seq):
         >>> bipartition((1,2,3))
         [((), (1, 2, 3)), ((1,), (2, 3)), ((2,), (1, 3)), ((1, 2), (3,))]
     """
-    return [(tuple(seq[i] for i in part0_idx),
-             tuple(seq[j] for j in part1_idx))
-            for part0_idx, part1_idx in bipartition_indices(len(seq))]
+    bipartitions = [(tuple(seq[i] for i in part0_idx),
+                     tuple(seq[j] for j in part1_idx))
+                   for part0_idx, part1_idx in bipartition_indices(len(seq))]
+    if nontrivial:
+        # The first partition has a part that is empty; skip it.
+        # NOTE: This depends on the implementation of
+        # `bipartition_indices`.
+        return bipartitions[1:]
+    return bipartitions
 
 
 @cache(cache={}, maxmem=None)
@@ -249,25 +255,36 @@ def directed_tripartition(seq):
                tuple(seq[k] for k in c))
 
 
-def system_bipartitions(seq):
-    """Return all |big_phi| partitions for the given nodes.
+def system_cuts(nodes, node_labels=None):
+    """Return all |big_phi| cuts for the given nodes.
 
-    This value changes based on :const:`config.CUT_ONE_APPROXIMATION`.
+    This value changes based on :const:`config.CUT_ONE_APPROXIMATION` and
+    `config.SYSTEM_PARTITION_TYPE`.
 
     Args:
-        seq (Iterable): The sequence to partition.
-
+        nodes (tuple[int]): The node indices to partition.
     Returns:
-        list[tuple[tuple]]: A list of tuples containing each of the two
-        parts.
+        list[Cut]: All system cuts.
     """
-    if config.CUT_ONE_APPROXIMATION:
-        bipartitions = directed_bipartition_of_one(seq)
-    else:
-        # Don't consider trivial partitions where one part is empty
-        bipartitions = directed_bipartition(seq, nontrivial=True)
+    # Only True if SINGLE_MICRO_NODES...=True, no?
+    if len(nodes) == 1:
+        return [Cut(nodes, nodes, node_labels)]
 
-    return bipartitions
+    if config.SYSTEM_PARTITION_TYPE == "UNIDIRECTIONAL":
+        if config.CUT_ONE_APPROXIMATION:
+            bipartitions = directed_bipartition_of_one(nodes)
+        else:
+            # Don't consider trivial partitions where one part is empty
+            bipartitions = directed_bipartition(nodes, nontrivial=True)
+    else:
+        # Use bidiretional system cuts
+        if config.CUT_ONE_APPROXIMATION:
+            bipartitions = bipartition_of_one(nodes)
+        else:
+            bipartitions = bipartition(nodes, nontrivial=True)
+
+    return [Cut(bipartition[0], bipartition[1], node_labels)
+            for bipartition in bipartitions]
 
 
 # Knuth's algorithm for k-partitions of a set

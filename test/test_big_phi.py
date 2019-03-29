@@ -7,8 +7,8 @@ import pickle
 import pytest
 
 from pyphi import Network, Subsystem, compute, config, constants, models, utils
-from pyphi.compute.subsystem import (ComputeSystemIrreducibility,
-                                     system_cuts)
+from pyphi.compute.subsystem import ComputeSystemIrreducibility
+from pyphi.partition import system_cuts
 
 # pylint: disable=unused-argument
 
@@ -486,6 +486,7 @@ def test_sia_macro(macro_s):
     check_sia(sia, macro_answer)
 
 
+@config.override(SYSTEM_PARTITION_TYPE="UNIDIRECTIONAL")
 def test_system_cuts():
     with config.override(CUT_ONE_APPROXIMATION=False):
         answer = [models.Cut((1,), (2, 3, 4)),
