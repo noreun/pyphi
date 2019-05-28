@@ -404,6 +404,10 @@ class PyphiConfig(Config):
     This measure can then be used by setting
     ``config.DIVERGENCE = 'ALWAYS_ZERO'``.
 
+    When using Jupyter, if you have registered a distance under one name, you
+    must restart the kernel in order to re-register a distance under that same
+    name.
+
     If the measure is asymmetric you should register it using the
     ``asymmetric`` keyword argument. See :mod:`~pyphi.distance` for examples.
     """)
