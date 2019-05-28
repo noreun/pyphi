@@ -649,7 +649,7 @@ class PyphiConfig(Config):
     the smallest purview is chosen; otherwise, the one with largest purview is
     chosen.""")
 
-    CONCEPTS_MUST_HAVE_BOTH_CAUSES_AND_EFFECTS = Option(False, doc="""
+    CONCEPTS_MUST_HAVE_BOTH_CAUSES_AND_EFFECTS = Option(True, doc="""
     When computing a |CauseEffectStructure|, control whether a concept must have both
     an irreducible cause and an irreudcible effect in order to be included in the CES.
     If ``False``, neither a cause nor effect is required. """)
