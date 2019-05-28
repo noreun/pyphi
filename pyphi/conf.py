@@ -385,7 +385,7 @@ class PyphiConfig(Config):
     accurate results with modular, sparsely-connected, or homogeneous
     networks.""")
 
-    DIVERGENCE = Option('KLD', doc="""
+    DIVERGENCE = Option('KLM', doc="""
     The measure to use when computing divergences or distances between
     repertoires, and concepts. A full list of currently installed measures
     is available by calling ``print(pyphi.distance.measures.all())``. Note
@@ -494,7 +494,7 @@ class PyphiConfig(Config):
     Configure the Redis database backend. These are the defaults in the
     provided ``redis.conf`` file.""")
 
-    WELCOME_OFF = Option(False, doc="""
+    WELCOME_OFF = Option(True, doc="""
     Specifies whether to suppress the welcome message when PyPhi is imported.
 
     Alternatively, you may suppress the message by setting the environment
@@ -552,7 +552,7 @@ class PyphiConfig(Config):
     Controls whether PyPhi checks if a system's TPM is conditionally
     independent.""")
 
-    SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI = Option(False, doc="""
+    SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI = Option(True, doc="""
     If set to ``True``, the |big_phi| value of single micro-node subsystems is
     the difference between their unpartitioned |CauseEffectStructure| (a single
     concept) and the null concept. If set to False, their |big_phi| is defined
@@ -650,13 +650,11 @@ class PyphiConfig(Config):
     an irreducible cause and an irreudcible effect in order to be included in the CES.
     If ``False``, neither a cause nor effect is required. """)
 
-    CES_DISTANCE = Option("COMPOSITIONAL", doc="""
+    CES_DISTANCE = Option("SUM_OF_SMALL_PHI", doc="""
     If set to ``XEMD``, the distance between cause-effect structures (when
     computing a |SystemIrreducibilityAnalysis|) is calculated using the
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead.""")
-    # TODO: If set to "COMPOSITIONAL", CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY
-    # should be True.
 
     SPECIFICATION_RATIO = Option(True, values=[True, False],
     doc="""Use a system-level specification ratio when computing |big_phi|. This ratio
