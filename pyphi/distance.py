@@ -236,8 +236,8 @@ def mp2q(p, q):
 def klm(p, q):
     """Compute the KLM divergence."""
     p, q = flatten(p), flatten(q)
-    return max(abs(p * np.nan_to_num(np.log(p / q))))
-
+    info = [abs(x * np.nan_to_num(np.log(x / y))) if x > 0 else 0 for (x, y) in zip(p, q)]
+    return max(info)
 
 def directional_emd(direction, d1, d2):
     """Compute the EMD between two repertoires for a given direction.
