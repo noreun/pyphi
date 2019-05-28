@@ -126,7 +126,7 @@ def test_suppress_np_warnings():
 
     @distance.np_suppress()
     def multiply_by_nan():
-        np.array([1, 0]) * np.log(0)
+        np.array([1, 0]) * np.log2(0)
 
     # Try and trigger an error:
     with np.errstate(divide='raise', invalid='raise'):

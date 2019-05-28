@@ -199,23 +199,6 @@ def entropy_difference(d1, d2):
     return abs(entropy(d1, base=2.0) - entropy(d2, base=2.0))
 
 
-@measures.register('PSQ2')
-@np_suppress()
-def psq2(d1, d2):
-    """Compute the PSQ2 measure.
-
-    Args:
-        d1 (np.ndarray): The first distribution.
-        d2 (np.ndarray): The second distribution.
-    """
-    d1, d2 = flatten(d1), flatten(d2)
-
-    def f(p):
-        return sum((p ** 2) * np.nan_to_num(np.log(p * len(p))))
-
-    return abs(f(d1) - f(d2))
-
-
 @measures.register('MP2Q', asymmetric=True)
 @np_suppress()
 def mp2q(p, q):
@@ -227,7 +210,7 @@ def mp2q(p, q):
     """
     p, q = flatten(p), flatten(q)
     entropy_dist = 1 / len(p)
-    return sum(entropy_dist * np.nan_to_num((p ** 2) / q * np.log(p / q)))
+    return sum(entropy_dist * np.nan_to_num((p ** 2) / q * np.log2(p / q)))
 
 
 @measures.register('KLM', asymmetric=True)
@@ -236,7 +219,7 @@ def mp2q(p, q):
 def klm(p, q):
     """Compute the KLM divergence."""
     p, q = flatten(p), flatten(q)
-    info = [abs(x * np.nan_to_num(np.log(x / y))) if x > 0 else 0 for (x, y) in zip(p, q)]
+    info = [abs(x * np.nan_to_num(np.log2(x / y))) if x > 0 else 0 for (x, y) in zip(p, q)]
     return max(info)
 
 def directional_emd(direction, d1, d2):
