@@ -321,7 +321,7 @@ def fmt_concept(concept):
     return header(title, ce, HEADER_BAR_2, HEADER_BAR_2, center=center)
 
 
-def fmt_ria(ria, verbose=True, mip=False, has_ties=False):
+def fmt_ria(ria, verbose=True, mip=False):
     """Format a |RepertoireIrreducibilityAnalysis|."""
     if verbose:
         mechanism = 'Mechanism: {}\n'.format(
@@ -349,7 +349,6 @@ def fmt_ria(ria, verbose=True, mip=False, has_ties=False):
         '{SMALL_PHI} = {phi}\n'
         '{mechanism}'
         'Purview = {purview}'
-        'Ties: {has_ties}'
         '{direction}'
         '{partition}'
         '{repertoire}'
@@ -357,7 +356,6 @@ def fmt_ria(ria, verbose=True, mip=False, has_ties=False):
             SMALL_PHI=SMALL_PHI,
             mechanism=mechanism,
             purview=fmt_mechanism(ria.purview, ria.node_labels),
-            ties=ties,
             direction=direction,
             phi=fmt_number(ria.phi),
             partition=partition,
