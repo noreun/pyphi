@@ -210,6 +210,9 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
     log.debug('Finished evaluating %s.', cut)
 
     phi_ = ces_distance(unpartitioned_ces, partitioned_ces)
+    if config.SPECIFICATION_RATIO:
+        n = uncut_subsystem.size
+        phi_ = (phi_ ** 2) / (n * 2 ** (n - 1))
 
     return SystemIrreducibilityAnalysis(
         phi=phi_,

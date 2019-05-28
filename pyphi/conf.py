@@ -657,6 +657,12 @@ class PyphiConfig(Config):
     # TODO: If set to "COMPOSITIONAL", CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY
     # should be True.
 
+    SPECIFICATION_RATIO = Option(True, values=[True, False],
+    doc="""Use a system-level specification ratio when computing |big_phi|. This ratio
+    assumes that the maximum possible intrinsic information for a system of size n is
+    sum(k*(n choose k)) for k from 1 to n. This represents a system with (n choose k)
+    mechanism of order k, each of which has a phi of k.""")
+
     SYSTEM_PARTITION_TYPE = Option("UNIDIRECTIONAL", doc="""
     Controls whether system partitions are ``BIDIRECTIONAL`` (i.e. one cannot cut A->B
     without also cutting B->A) or ``UNIDIRECTIONAL``.""")
