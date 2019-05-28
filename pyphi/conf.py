@@ -58,6 +58,7 @@ These settings control the algorithms PyPhi uses.
 - :attr:`~pyphi.conf.PyphiConfig.CONCEPT_PARTITION_TYPE`
 - :attr:`~pyphi.conf.PyphiConfig.PICK_SMALLEST_PURVIEW`
 - :attr:`~pyphi.conf.PyphiConfig.CES_DISTANCE`
+- :attr:`~pyphi.conf.PyphiConfig.SPECIFICATION_RATIO`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_SYSTEM_CAUSES_AND_EFFECTS_INDEPENDENTLY`
 - :attr:`~pyphi.conf.PyphiConfig.SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI`
 - :attr:`~pyphi.conf.PyphiConfig.VALIDATE_SUBSYSTEM_STATES`
