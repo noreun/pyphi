@@ -708,23 +708,26 @@ class Subsystem:
         # If all purviews are trivially reducible, return a null MICE
         # immediately.
         if not filtered_purviews:
-            max_mip = _null_ria(direction, mechanism, ())
+            all_mips = [_null_ria(direction, mechanism, ())]
         elif partitions:
-            max_mip = max(
+            all_mips = [
                 self.find_mip(direction, mechanism, purview, partitions=x)
                 for (purview, x) in zip(purviews, partitions)
                 if purview in filtered_purviews
-            )
+            ]
         else:
-            max_mip = max(
+            all_mips = [
                 self.find_mip(direction, mechanism, purview)
                 for purview in filtered_purviews
-            )
+            ]
+
+        max_phi = max(all_mips).phi
+        max_mips = [mip for mip in all_mips if mip.phi == max_phi]
 
         if direction == Direction.CAUSE:
-            return MaximallyIrreducibleCause(max_mip)
+            return MaximallyIrreducibleCause(max_mips[0], max_mips[1:])
         elif direction == Direction.EFFECT:
-            return MaximallyIrreducibleEffect(max_mip)
+            return MaximallyIrreducibleEffect(max_mips[0], max_mips[1:])
         return validate.direction(direction)
 
     def mic(self, mechanism, purviews=False, partitions=False):

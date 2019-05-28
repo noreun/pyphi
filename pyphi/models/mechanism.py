@@ -158,8 +158,9 @@ class MaximallyIrreducibleCauseOrEffect(cmp.Orderable):
     |PICK_SMALLEST_PURVIEW| option in |config|.)
     """
 
-    def __init__(self, ria):
+    def __init__(self, ria, ties=[]):
         self._ria = ria
+        self._ties = ties
 
     @property
     def phi(self):
@@ -212,6 +213,11 @@ class MaximallyIrreducibleCauseOrEffect(cmp.Orderable):
         this mechanism.
         """
         return self._ria
+
+    @property
+    def ties(self):
+        """list[RepertoireIrreducibilityAnalysis]: A list of RIAs with equivalent phi."""
+        return self._ties
 
     def __repr__(self):
         return fmt.make_repr(self, ['ria'])
@@ -294,11 +300,11 @@ class MaximallyIrreducibleCause(MaximallyIrreducibleCauseOrEffect):
     |PICK_SMALLEST_PURVIEW| option in |config|.)
     """
 
-    def __init__(self, ria):
+    def __init__(self, ria, ties=[]):
         if ria.direction != Direction.CAUSE:
             raise WrongDirectionError('A MIC must be initialized with a RIA '
                                       'in the cause direction.')
-        super().__init__(ria)
+        super().__init__(ria, ties)
 
     @property
     def direction(self):
@@ -315,11 +321,11 @@ class MaximallyIrreducibleEffect(MaximallyIrreducibleCauseOrEffect):
     |PICK_SMALLEST_PURVIEW| option in |config|.)
     """
 
-    def __init__(self, ria):
+    def __init__(self, ria, ties=[]):
         if ria.direction != Direction.EFFECT:
             raise WrongDirectionError('A MIE must be initialized with a RIA '
                                       'in the effect direction.')
-        super().__init__(ria)
+        super().__init__(ria, ties)
 
     @property
     def direction(self):
