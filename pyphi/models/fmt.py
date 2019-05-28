@@ -305,8 +305,10 @@ def fmt_concept(concept):
     def fmt_cause_or_effect(x):  # pylint: disable=missing-docstring
         return box(indent(fmt_ria(x.ria, verbose=False, mip=True), amount=1))
 
-    cause = header('MIC', fmt_cause_or_effect(concept.cause))
-    effect = header('MIE', fmt_cause_or_effect(concept.effect))
+    cause_heading = 'MIC' if not concept.cause.ties else 'MIC (tied)'
+    cause = header(cause_heading, fmt_cause_or_effect(concept.cause))
+    effect_heading = 'MIE' if not concept.effect.ties else 'MIE (tied)'
+    effect = header(effect_heading, fmt_cause_or_effect(concept.effect))
     ce = side_by_side(cause, effect)
 
     mechanism = fmt_mechanism(concept.mechanism, concept.node_labels)
@@ -319,7 +321,7 @@ def fmt_concept(concept):
     return header(title, ce, HEADER_BAR_2, HEADER_BAR_2, center=center)
 
 
-def fmt_ria(ria, verbose=True, mip=False):
+def fmt_ria(ria, verbose=True, mip=False, has_ties=False):
     """Format a |RepertoireIrreducibilityAnalysis|."""
     if verbose:
         mechanism = 'Mechanism: {}\n'.format(
@@ -347,6 +349,7 @@ def fmt_ria(ria, verbose=True, mip=False):
         '{SMALL_PHI} = {phi}\n'
         '{mechanism}'
         'Purview = {purview}'
+        'Ties: {has_ties}'
         '{direction}'
         '{partition}'
         '{repertoire}'
@@ -354,6 +357,7 @@ def fmt_ria(ria, verbose=True, mip=False):
             SMALL_PHI=SMALL_PHI,
             mechanism=mechanism,
             purview=fmt_mechanism(ria.purview, ria.node_labels),
+            ties=ties,
             direction=direction,
             phi=fmt_number(ria.phi),
             partition=partition,
