@@ -103,6 +103,8 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
 
     @property
     def ties(self):
+        """Return a list of CES with MICE ties resolved in each possible way. A CES is
+        by definition tied with itself, so this never returns an empty list."""
         return [self._ces_from_tie_branch(branch) for branch in self._tie_tree]
 
 
