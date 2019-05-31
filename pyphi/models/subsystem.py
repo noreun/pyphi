@@ -7,7 +7,8 @@
 import collections
 import itertools as it
 
-from . import cmp, fmt, Concept, MaximallyIrreducibleCause, MaximallyIrreducibleEffect
+from . import cmp, fmt
+from .mechanism import Concept, MaximallyIrreducibleCause, MaximallyIrreducibleEffect
 
 from .. import utils, Direction
 
@@ -76,10 +77,11 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
     def _tie_list(self, direction):
         """Generate a list of all MIC or MIE ties in the |CauseEffectStructure|."""
         return {
-            Direction.CAUSE: [tuple(range(len(c.cause.ties) + 1)) if c.cause.ties else (0,) for c in ces],
-            Direction.EFFECT:  [tuple(range(len(c.effect.ties) + 1)) if c.effect.ties else (0,) for c in ces]
+            Direction.CAUSE: [tuple(range(len(c.cause.ties) + 1)) if c.cause.ties else (0,) for c in self],
+            Direction.EFFECT: [tuple(range(len(c.effect.ties) + 1)) if c.effect.ties else (0,) for c in self]
         }[direction]
 
+    @property
     def _tie_tree(self):
         """Generate the a tree of all possible ways to resolve MIC and MIE ties."""
         return it.product(it.product(*self._tie_list(Direction.CAUSE)),
@@ -89,7 +91,7 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
         """Resolve MICE ties within this |CauseEffectStrcuture|, according to one branch
         of the tie tree."""
         new_concepts = []
-        for concept, cause, effect in zip(self.concepts, *branch):
+        for concept, cause, effect in zip(self, *branch):
             cause_ria = concept.cause.ties[cause - 1] if cause else concept.cause.ria
             effect_ria = concept.effect.ties[effect - 1] if effect else concept.effect.ria
             new_concepts.append(Concept(mechanism=concept.mechanism,
