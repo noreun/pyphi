@@ -5,9 +5,11 @@
 """Subsystem-level objects."""
 
 import collections
+import itertools as it
 
-from . import cmp, fmt
-from .. import utils
+from . import cmp, fmt, Concept, MaximallyIrreducibleCause, MaximallyIrreducibleEffect
+
+from .. import utils, Direction
 
 _sia_attributes = ['phi', 'ces', 'partitioned_ces', 'subsystem',
                    'cut_subsystem']
@@ -70,6 +72,36 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
         """The labeled mechanism of each concept."""
         label = self.subsystem.node_labels.indices2labels
         return tuple(list(label(mechanism)) for mechanism in self.mechanisms)
+
+    def _tie_list(self, direction):
+        """Generate a list of all MIC or MIE ties in the |CauseEffectStructure|."""
+        return {
+            Direction.CAUSE: [tuple(range(len(c.cause.ties) + 1)) if c.cause.ties else (0,) for c in ces],
+            Direction.EFFECT:  [tuple(range(len(c.effect.ties) + 1)) if c.effect.ties else (0,) for c in ces]
+        }[direction]
+
+    def _tie_tree(self):
+        """Generate the a tree of all possible ways to resolve MIC and MIE ties."""
+        return it.product(it.product(*self._tie_list(Direction.CAUSE)),
+                          it.product(*self._tie_list(Direction.EFFECT)))
+
+    def _ces_from_tie_branch(self, branch):
+        """Resolve MICE ties within this |CauseEffectStrcuture|, according to one branch
+        of the tie tree."""
+        new_concepts = []
+        for concept, cause, effect in zip(self.concepts, *branch):
+            cause_ria = concept.cause.ties[cause - 1] if cause else concept.cause.ria
+            effect_ria = concept.effect.ties[effect - 1] if effect else concept.effect.ria
+            new_concepts.append(Concept(mechanism=concept.mechanism,
+                                        cause=MaximallyIrreducibleCause(cause_ria),
+                                        effect=MaximallyIrreducibleEffect(effect_ria),
+                                        subsystem=concept.subsystem,
+                                        time=concept.time))
+        return CauseEffectStructure(new_concepts, self.subsystem, self.time)
+
+    @property
+    def ties(self):
+        return [self._ces_from_tie_branch(branch) for branch in self._tie_tree]
 
 
 class SystemIrreducibilityAnalysis(cmp.Orderable):
