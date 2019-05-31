@@ -678,6 +678,14 @@ class PyphiConfig(Config):
     though still with unidirectional bipartitions (systems will have both
     a cause MIP and an effect MIP).""")
 
+    BREAK_MICE_TIES_USING_BIG_PHI = Option(True, values=[True, False],
+    doc="""After MICs and MIEs for a given mechanism are computed, there may be ties
+    between e.g. MICs. When ``True``, a |SystemIrreducibilityAnalysis| will consider all
+    possible ways to resolve these ties, and choose the particular resolution that
+    maximizes |big_phi|. This does NOT yet resolve ties in the partitioned CES, so this
+    option can only be used when ``ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION`` is
+    ``True``.""")
+
     def log(self):
         """Log current settings."""
         log.info('PyPhi v%s', __about__.__version__)

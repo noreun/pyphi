@@ -176,24 +176,10 @@ def conceptual_info(subsystem):
     return round(ci, config.PRECISION)
 
 
-def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
-    """Compute the system irreducibility for a given cut.
+def _evaluate_cut(uncut_subsystem, cut_subsystem, unpartitioned_ces):
+    """Compute the system irreducibility for a given cut and tie-resolved CES."""
 
-    Args:
-        uncut_subsystem (Subsystem): The subsystem without the cut applied.
-        cut (Cut): The cut to evaluate.
-        unpartitioned_ces (CauseEffectStructure): The cause-effect structure of
-            the uncut subsystem.
-
-    Returns:
-        SystemIrreducibilityAnalysis: The |SystemIrreducibilityAnalysis| for
-        that cut.
-    """
-    log.debug('Evaluating %s...', cut)
-
-    cut_subsystem = uncut_subsystem.apply_cut(cut)
-
-    # Compute that partitioned CES
+    # Compute the partitioned CES
     if config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
         partitioned_ces = fixed_ces(cut_subsystem, unpartitioned_ces)
     elif config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
@@ -207,8 +193,8 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
             list(cut_subsystem.cut_mechanisms))
         partitioned_ces = ces(cut_subsystem, mechanisms)
 
-    log.debug('Finished evaluating %s.', cut)
-
+    # TODO: We should really explore all MICE ties in the partitioned CES as well, at least
+    # when using the XEMD.
     phi_ = ces_distance(unpartitioned_ces, partitioned_ces)
     if config.SPECIFICATION_RATIO:
         n = uncut_subsystem.size
@@ -220,6 +206,39 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
         partitioned_ces=partitioned_ces,
         subsystem=uncut_subsystem,
         cut_subsystem=cut_subsystem)
+
+
+def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
+    """Compute the system irreducibility for a given cut, optionally considering all ways
+    to resolve MICE ties.
+
+    Args:
+        uncut_subsystem (Subsystem): The subsystem without the cut applied.
+        cut (Cut): The cut to evaluate.
+        unpartitioned_ces (CauseEffectStructure): The cause-effect structure of
+            the uncut subsystem, with information about MICE ties if tie-breaking is
+            desired.
+
+    Returns:
+        SystemIrreducibilityAnalysis: The |SystemIrreducibilityAnalysis| for
+        that cut. If MICE tie-breaking was done, this object's `unpartitioned_ces` property
+        will be the tie-resolved CES that maximizes |big_phi|.
+    """
+    log.debug('Evaluating %s...', cut)
+
+    cut_subsystem = uncut_subsystem.apply_cut(cut)
+
+    # In principle, ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION could be false, but
+    # as implemented, MICE tie breaking only makes sense when it is true.
+    if config.BREAK_MICE_TIES_USING_BIG_PHI and config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
+        log.debug('Breaking MICE ties...')
+        result =  max(_evaluate_cut(uncut_subsystem, cut_subsystem, ces)
+                      for ces in unpartitioned_ces.ties)
+    else:
+        result = _evaluate_cut(uncut_subsystem, cut_subsystem, unpartitioned_ces)
+
+    log.debug('Finished evaluating %s.', cut)
+    return result
 
 
 class ComputeSystemIrreducibility(MapReduce):
