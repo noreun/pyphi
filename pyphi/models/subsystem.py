@@ -77,8 +77,10 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
     def _tie_list(self, direction):
         """Generate a list of all MIC or MIE ties in the |CauseEffectStructure|."""
         return {
-            Direction.CAUSE: [tuple(range(len(c.cause.ties) + 1)) if c.cause.ties else (0,) for c in self],
-            Direction.EFFECT: [tuple(range(len(c.effect.ties) + 1)) if c.effect.ties else (0,) for c in self]
+            Direction.CAUSE: [tuple(range(len(c.cause.ties) + 1))
+                              if c.cause.ties else (0,) for c in self],
+            Direction.EFFECT: [tuple(range(len(c.effect.ties) + 1))
+                               if c.effect.ties else (0,) for c in self]
         }[direction]
 
     @property
@@ -92,11 +94,19 @@ class CauseEffectStructure(cmp.Orderable, collections.Sequence):
         of the tie tree."""
         new_concepts = []
         for concept, cause, effect in zip(self, *branch):
-            cause_ria = concept.cause.ties[cause - 1] if cause else concept.cause.ria
-            effect_ria = concept.effect.ties[effect - 1] if effect else concept.effect.ria
+            cause_rias = [concept.cause.ria] + concept.cause.ties
+            effect_rias = [concept.effect.ria] + concept.effect.ties
+            new_cause = MaximallyIrreducibleCause(
+                ria=cause_rias[cause],
+                ties=[x for i, x in enumerate(cause_rias) if i != cause]
+            )
+            new_effect = MaximallyIrreducibleEffect(
+                ria=effect_rias[effect],
+                ties=[x for i, x in enumerate(effect_rias) if i != effect]
+            )
             new_concepts.append(Concept(mechanism=concept.mechanism,
-                                        cause=MaximallyIrreducibleCause(cause_ria),
-                                        effect=MaximallyIrreducibleEffect(effect_ria),
+                                        cause=new_cause,
+                                        effect=new_effect,
                                         subsystem=concept.subsystem,
                                         time=concept.time))
         return CauseEffectStructure(new_concepts, self.subsystem, self.time)
