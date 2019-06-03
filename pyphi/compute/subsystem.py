@@ -467,11 +467,18 @@ def directional_sia(subsystem, direction, unpartitioned_ces=None):
     c_system = ConceptStyleSystem(subsystem, direction)
     cuts = system_cuts(c_system.cut_indices, subsystem.node_labels)
 
-    # Run the default SIA engine
-    # TODO: verify that short-cutting works correctly?
-    engine = ComputeSystemIrreducibility(
-        cuts, c_system, unpartitioned_ces)
-    return engine.run(config.PARALLEL_CUT_EVALUATION)
+    # In principle, ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION could be false, but
+    # as implemented, MICE tie breaking only makes sense when it is true.
+    if config.BREAK_MICE_TIES_USING_BIG_PHI and \
+       config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
+        log.debug('Breaking MICE ties between CESs...')
+        engines = [ComputeSystemIrreducibility(cuts, c_system, ces)
+                   for ces in unpartitioned_ces.ties]
+    else:
+        # TODO: verify that short-cutting works correctly?
+        engines = [ComputeSystemIrreducibility(cuts, c_system, unpartitioned_ces)]
+
+    return max(engine.run(config.PARALLEL_CUT_EVALUATION) for engine in engines)
 
 
 # TODO: only return the minimal SIA, instead of both
