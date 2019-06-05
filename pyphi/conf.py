@@ -686,6 +686,10 @@ class PyphiConfig(Config):
     option can only be used when ``ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION`` is
     ``True``.""")
 
+    INCLUDE_RELATIONS_IN_BIG_PHI = Option(True, values=[True, False],
+    doc="""Include relations in |big_phi|. Should be used with ``SPECIFICATION_RATIO```
+    set to ``True``, at a minimum.""")
+
     def log(self):
         """Log current settings."""
         log.info('PyPhi v%s', __about__.__version__)

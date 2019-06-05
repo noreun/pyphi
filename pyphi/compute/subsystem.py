@@ -16,6 +16,7 @@ from ..partition import system_cuts
 from ..utils import time_annotated
 from .distance import ces_distance
 from .parallel import MapReduce
+from ..relations import ces_distance as relational_ces_distance
 
 # Create a logger for this module.
 log = logging.getLogger(__name__)
@@ -52,12 +53,13 @@ class ComputeFixedCauseEffectStructure(MapReduce):
         return new_concept
 
     def process_result(self, new_concept, concepts):
-        """Save all concepts, even those with zero |small_phi|, to the
+        """Save all concepts with non-zero |small_phi| to the
         |CauseEffectStructure|.
         """
-        # Replace the subsystem
-        new_concept.subsystem = self.subsystem
-        concepts.append(new_concept)
+        if not config.CONCEPTS_MUST_HAVE_BOTH_CAUSES_AND_EFFECTS or new_concept.phi > 0:
+            # Replace the subsystem
+            new_concept.subsystem = self.subsystem
+            concepts.append(new_concept)
         return concepts
 
 
@@ -79,7 +81,7 @@ def fixed_ces(subsystem, ces, parallel=False):
     Returns:
         CauseEffectStructure: A tuple of every |Concept| in the cause-effect
         structure specified by `ces`, but with recomputed repertories and
-        irreducibility values.
+        irreducibility values. Reducible concepts are not returned.
     """
     engine = ComputeFixedCauseEffectStructure(ces, subsystem)
 
@@ -207,17 +209,25 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
 
     log.debug('Finished evaluating %s.', cut)
 
-    phi_ = ces_distance(unpartitioned_ces, partitioned_ces)
+    # Compute the contribution of concepts to big phi
+    c_phi = ces_distance(unpartitioned_ces, partitioned_ces)
+    # Compute the contribution of relations to big phi
+    if config.INCLUDE_RELATIONS_IN_BIG_PHI:
+        r_phi = relational_ces_distance(unpartitioned_ces, partitioned_ces)
+    else:
+        r_phi = 0
+
     if config.SPECIFICATION_RATIO:
         n = uncut_subsystem.size
-        phi_ = (phi_ ** 2) / (n * 2 ** (n - 1))
+        c_phi = (c_phi ** 2) / (n * 2 ** (n - 1))
+        r_phi = (r_phi ** 2) / (n * (2 ** (2 ** (n + 1))) - (2 ** (n + 1)))
 
     return SystemIrreducibilityAnalysis(
-        phi=phi_,
+        phi=c_phi + r_phi,
         ces=unpartitioned_ces,
         partitioned_ces=partitioned_ces,
         subsystem=uncut_subsystem,
-cut_subsystem=cut_subsystem)
+        cut_subsystem=cut_subsystem)
 
 
 class ComputeSystemIrreducibility(MapReduce):

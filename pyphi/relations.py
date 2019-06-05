@@ -373,3 +373,13 @@ def all_relations(subsystem, ces):
 def relations(subsystem, ces):
     """Return the irreducible relations among the causes/effects in the CES."""
     return filter(None, all_relations(subsystem, ces))
+
+def ces_distance(unpartitioned_ces, partitioned_ces):
+    """Return the difference in the sum of relational phi before and after a system cut."""
+    unpartitioned_relational_phi = sum(
+        r.phi for r in relations(unpartitioned_ces.subsystem, unpartitioned_ces)
+    )
+    partitioned_relational_phi = sum(
+        r.phi for r in relations(partitioned_ces.subsystem, partitioned_ces)
+    )
+    return unpartitioned_relational_phi - partitioned_relational_phi
