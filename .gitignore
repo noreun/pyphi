@@ -5,6 +5,7 @@ __pycache__
 .agignore
 .tox
 .coverage
+.vscode
 **/*.egg-info
 **/*.log
 **/*.BACKUP
