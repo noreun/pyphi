@@ -51,7 +51,7 @@ Approximations and theoretical options
 
 These settings control the algorithms PyPhi uses.
 
-- :attr:`~pyphi.conf.PyphiConfig.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION`
+- :attr:`~pyphi.conf.PyphiConfig.SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW`
 - :attr:`~pyphi.conf.PyphiConfig.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS`
 - :attr:`~pyphi.conf.PyphiConfig.CUT_ONE_APPROXIMATION`
 - :attr:`~pyphi.conf.PyphiConfig.DIVERGENCE`
@@ -375,7 +375,7 @@ def configure_precision(conf):
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
 
-    ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION = Option(True, doc="""
+    SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW = Option(True, doc="""
     In IIT 3.0, we recompute the entire CES after a system partition
     to obtain the partioned CES. In IIT 4.0, the partitioned CES has
     exactly the same mechanisms and purviews as the unpartitioned CES,
@@ -673,11 +673,19 @@ class PyphiConfig(Config):
     extended EMD. If set to ``SUM_OF_SMALL_PHI``, the difference between the
     sum of |small_phi| in the cause-effect structures is used instead.""")
 
-    SPECIFICATION_RATIO = Option(True, values=[True, False],
-    doc="""Use a system-level specification ratio when computing |big_phi|. This ratio
-    assumes that the maximum possible intrinsic information for a system of size n is
-    sum(k*(n choose k)) for k from 1 to n. This represents a system with (n choose k)
-    mechanism of order k, each of which has a phi of k.""")
+    SPECIFICATION_RATIO = Option('NONE', doc="""System-level specification ratio 
+    when computing |big_phi|, which means multiplying |big_phi| as computed by
+    CES_DISTANCE by this ratio. If NONE, |big_phi| returned by CES_DISTANCE is left
+    unchanged. MAX_INTRINSIC_INFO returns a ratio which is the value returned by
+    CES_DISTANCE divided by the hypothetical maximum possible intrinsic 
+    information for a system of size n is sum(k*(n choose k)) for k from 1 to n. 
+    This represents a system with (n choose k) mechanism of order k, each of which 
+    has a phi of k. SUM_PROB compute 2 ** n -1 repertoires where each is one possible
+    subset of the n nodes constrained by the whole system, computes the sum
+    of the maximum probability of each repertoire (i.e. the mode) and divide this 
+    by the number of repertoires (2 ** n - 1). SUM_PROB_INFO does the same but the 
+     probability is not the mode. Instead instead it is the state with maximum
+     p log p /u, whwere u is the unconstrained probability.""")
 
     SYSTEM_PARTITION_TYPE = Option("UNIDIRECTIONAL", doc="""
     Controls whether system partitions are ``BIDIRECTIONAL`` (i.e. one cannot cut A->B
@@ -696,7 +704,7 @@ class PyphiConfig(Config):
     between e.g. MICs. When ``True``, a |SystemIrreducibilityAnalysis| will consider all
     possible ways to resolve these ties, and choose the particular resolution that
     maximizes |big_phi|. This does NOT yet resolve ties in the partitioned CES, so this
-    option can only be used when ``ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION`` is
+    option can only be used when ``SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW`` is
     ``True``.""")
 
     INCLUDE_RELATIONS_IN_BIG_PHI = Option(True, values=[True, False],

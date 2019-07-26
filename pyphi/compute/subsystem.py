@@ -12,6 +12,7 @@ import logging
 from .. import Direction, config, connectivity, memory, utils
 from ..models import (CauseEffectStructure, Concept, SystemIrreducibilityAnalysis,
                       _null_sia, cmp, fmt)
+from ..models.cuts import Part, KPartition
 from ..partition import system_cuts
 from ..utils import time_annotated
 from .distance import ces_distance
@@ -189,12 +190,14 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
         SystemIrreducibilityAnalysis: The |SystemIrreducibilityAnalysis| for
         that cut.
     """
+    import numpy as np
+
     log.debug('Evaluating %s...', cut)
 
     cut_subsystem = uncut_subsystem.apply_cut(cut)
 
     # Compute that partitioned CES
-    if config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
+    if config.SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW:
         partitioned_ces = fixed_ces(cut_subsystem, unpartitioned_ces)
     elif config.SYSTEM_PARTITIONS_CANNOT_CREATE_NEW_CONCEPTS:
         mechanisms = unpartitioned_ces.mechanisms
@@ -217,10 +220,63 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
     else:
         r_phi = 0
 
-    if config.SPECIFICATION_RATIO:
+    if config.SPECIFICATION_RATIO == 'MAX_INTRINSIC_INFO':
+        # n = len(uncut_subsystem.node_indices)
         n = uncut_subsystem.size
         c_phi = (c_phi ** 2) / (n * 2 ** (n - 1))
         r_phi = (r_phi ** 2) / (n * (2 ** (2 ** (n + 1))) - (2 ** (n + 1)))
+    elif config.SPECIFICATION_RATIO == 'SUM_PROB':
+        n = len(uncut_subsystem.node_indices)
+        p = 0.
+        possible_purviews = utils.powerset(uncut_subsystem.node_indices, nonempty=True)
+        for possible_purview in possible_purviews:
+            # cause_repertoire = uncut_subsystem.concept(uncut_subsystem.node_indices, purviews=(possible_purview,))
+            cause_repertoire = uncut_subsystem.repertoire(Direction.CAUSE, uncut_subsystem.node_indices, possible_purview)
+            effect_repertoire = uncut_subsystem.repertoire(Direction.EFFECT, uncut_subsystem.node_indices, possible_purview)
+            pc = np.max(cause_repertoire.flatten())
+            pe = np.max(effect_repertoire.flatten())
+            p += np.max([pc, pe])
+
+        c_phi = (p/(2 ** n - 1)) * c_phi
+
+        if r_phi > 0:
+            raise ValueError('Relations not supported yet')
+
+    elif config.SPECIFICATION_RATIO == 'SUM_PROB_INFO':
+        n = len(uncut_subsystem.node_indices)
+        p = 0.
+        possible_purviews = utils.powerset(uncut_subsystem.node_indices, nonempty=True)
+        for possible_purview in possible_purviews:
+            desintegration = KPartition(
+                *[Part(mechanism=(i,), purview=()) for i in possible_purview],
+                *[Part(mechanism=(), purview=(i,)) for i in possible_purview]
+            )
+            # cause_repertoire = uncut_subsystem.concept(uncut_subsystem.node_indices, purviews=(possible_purview,))
+            cause_repertoire = uncut_subsystem.repertoire(Direction.CAUSE, uncut_subsystem.node_indices, possible_purview)
+            dphi, partitioned_cause_repertoire = uncut_subsystem.evaluate_partition(
+                Direction.CAUSE, uncut_subsystem.node_indices, possible_purview, desintegration, repertoire=cause_repertoire)
+            pc = cause_repertoire.flatten()
+            q = partitioned_cause_repertoire.flatten()
+            pc_idx = np.argmax([abs(x * np.nan_to_num(np.log2(x / y))) if x > 0 else 0 for (x, y) in zip(pc, q)])
+
+            effect_repertoire = uncut_subsystem.repertoire(Direction.EFFECT, uncut_subsystem.node_indices, possible_purview)
+            dphi, partitioned_effect_repertoire = uncut_subsystem.evaluate_partition(
+                Direction.EFFECT, uncut_subsystem.node_indices, possible_purview, desintegration, repertoire=effect_repertoire)
+            pe = effect_repertoire.flatten()
+            q = partitioned_effect_repertoire.flatten()
+            pe_idx = np.argmax([abs(x * np.nan_to_num(np.log2(x / y))) if x > 0 else 0 for (x, y) in zip(pe, q)])
+
+            pc = pc[pc_idx]
+            pe = pe[pe_idx]
+            p += np.max([pc, pe])
+
+        c_phi = (p/(2 ** n - 1)) * c_phi
+
+        if r_phi > 0:
+            raise ValueError('Relations not supported yet')
+
+    elif config.SPECIFICATION_RATIO != 'NONE':
+        raise ValueError('Unknown SPECIFICATION_RATIO: %s' % config.SPECIFICATION_RATIO)
 
     return SystemIrreducibilityAnalysis(
         phi=c_phi + r_phi,
@@ -332,10 +388,10 @@ def _sia(cache_key, subsystem):
 
     cuts = system_cuts(subsystem.cut_indices, subsystem.cut_node_labels)
 
-    # In principle, ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION could be false, but
+    # In principle, SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW could be false, but
     # as implemented, MICE tie breaking only makes sense when it is true.
     if config.BREAK_MICE_TIES_USING_BIG_PHI and \
-       config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
+       config.SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW:
         log.debug('Breaking MICE ties between CESs...')
         engines = [ComputeSystemIrreducibility(cuts, subsystem, ces)
                    for ces in unpartitioned_ces.ties]
@@ -477,10 +533,10 @@ def directional_sia(subsystem, direction, unpartitioned_ces=None):
     c_system = ConceptStyleSystem(subsystem, direction)
     cuts = system_cuts(c_system.cut_indices, subsystem.node_labels)
 
-    # In principle, ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION could be false, but
+    # In principle, SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW could be false, but
     # as implemented, MICE tie breaking only makes sense when it is true.
     if config.BREAK_MICE_TIES_USING_BIG_PHI and \
-       config.ONLY_RECOMPUTE_CONCEPT_MIPS_AFTER_SYSTEM_PARTITION:
+       config.SYSTEM_PARTITIONS_CANNOT_CHANGE_CONCEPTS_PURVIEW:
         log.debug('Breaking MICE ties between CESs...')
         engines = [ComputeSystemIrreducibility(cuts, c_system, ces)
                    for ces in unpartitioned_ces.ties]
