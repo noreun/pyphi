@@ -191,6 +191,7 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
         that cut.
     """
     import numpy as np
+    from functools import reduce
 
     log.debug('Evaluating %s...', cut)
 
@@ -225,19 +226,33 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
         n = uncut_subsystem.size
         c_phi = (c_phi ** 2) / (n * 2 ** (n - 1))
         r_phi = (r_phi ** 2) / (n * (2 ** (2 ** (n + 1))) - (2 ** (n + 1)))
-    elif config.SPECIFICATION_RATIO == 'SUM_PROB':
+    elif (config.SPECIFICATION_RATIO == 'SUM_PROB') or (config.SPECIFICATION_RATIO == 'PROD_PROB'):
         n = len(uncut_subsystem.node_indices)
-        p = 0.
+        ps = [0] * (2 ** n - 1)
         possible_purviews = utils.powerset(uncut_subsystem.node_indices, nonempty=True)
-        for possible_purview in possible_purviews:
+        for i, possible_purview in enumerate(possible_purviews):
             # cause_repertoire = uncut_subsystem.concept(uncut_subsystem.node_indices, purviews=(possible_purview,))
             cause_repertoire = uncut_subsystem.repertoire(Direction.CAUSE, uncut_subsystem.node_indices, possible_purview)
             effect_repertoire = uncut_subsystem.repertoire(Direction.EFFECT, uncut_subsystem.node_indices, possible_purview)
             pc = np.max(cause_repertoire.flatten())
             pe = np.max(effect_repertoire.flatten())
-            p += np.max([pc, pe])
+            ps[i] = np.max([pc, pe])
 
-        c_phi = (p/(2 ** n - 1)) * c_phi
+        # if config.SPECIFICATION_RATIO == 'PROD_PROB':
+        #     p = 1.
+        #     for pt in ps:
+        #         p *= pt
+        #     c_phi = p * c_phi
+        # else:
+        #     p = sum(ps)
+        #     c_phi = (p/(2 ** n - 1)) * c_phi
+
+        if config.SPECIFICATION_RATIO == 'PROD_PROB':
+            func = lambda x, y: x*y
+        else:
+            func = lambda x, y: x+y
+
+        c_phi = (reduce(func, ps)/reduce(func, [1]*len(ps))) * c_phi
 
         if r_phi > 0:
             raise ValueError('Relations not supported yet')
