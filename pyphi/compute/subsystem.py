@@ -14,6 +14,7 @@ from ..models import (CauseEffectStructure, Concept, SystemIrreducibilityAnalysi
                       _null_sia, cmp, fmt)
 from ..models.cuts import Part, KPartition
 from ..partition import system_cuts
+from ..distribution import flatten
 from ..utils import time_annotated
 from .distance import ces_distance
 from .parallel import MapReduce
@@ -253,6 +254,115 @@ def evaluate_cut(uncut_subsystem, cut, unpartitioned_ces):
             func = lambda x, y: x+y
 
         c_phi = (reduce(func, ps)/reduce(func, [1]*len(ps))) * c_phi
+
+        if r_phi > 0:
+            raise ValueError('Relations not supported yet')
+
+    elif (config.SPECIFICATION_RATIO == 'EXTANT_SUM_PROB') or (config.SPECIFICATION_RATIO == 'EXTANT_PROD_PROB'):
+
+        def distance_no_x(x, y):
+            return abs(x * np.nan_to_num(np.log2(x / y)))
+
+        def distance(x, y):
+            return abs(x * np.nan_to_num(np.log2(x / y)))
+
+        concepts = unpartitioned_ces.concepts
+        ps = []
+        infos = []
+
+        # ps = [0] * len(concepts)
+        # infos = [0] * len(concepts)
+
+        # print(len(concepts))
+        # print('------')
+        # print(cut)
+        # print(uncut_subsystem.nodes)
+        for (conceptidx, concept) in enumerate(concepts):
+            # get cause repertoire partitioned by the system cut
+            partitioned_cause_repertoire = \
+                cut_subsystem.cut_system.cause_repertoire(concept.mechanism, concept.cause_purview)
+            qsc = flatten(partitioned_cause_repertoire)
+            # print(qsc)
+            # get state of the cause purview defining the distinction
+            pc, qc = flatten(concept.cause_repertoire), flatten(concept.cause.partitioned_repertoire)
+            # print(pc,qc)
+            maxcidx = np.argmax([distance(x, y) if x > 0 else 0 for (x, y) in zip(pc, qc)])
+            # print(maxcidx)
+            # compute information in the cause side given system cut
+            infoc = distance_no_x(pc[maxcidx], qsc[maxcidx])
+            # print(infoc)
+
+            # same for effect
+            partitioned_effect_repertoire = \
+                cut_subsystem.cut_system.effect_repertoire(concept.mechanism, concept.effect_purview)
+            qse = flatten(partitioned_effect_repertoire)
+            # print(qse)
+            pe, qe = flatten(concept.effect_repertoire), flatten(concept.effect.partitioned_repertoire)
+            # print(pe,qe)
+            maxeidx = np.argmax([distance(x, y) if x > 0 else 0 for (x, y) in zip(pe, qe)])
+            # print(maxeidx)
+            infoe = distance_no_x(pe[maxeidx], qse[maxeidx])
+            # print(infoe)
+
+            # touch and die
+            p = []
+            q = []
+            if concept.effect.phi < concept.cause.phi:
+                if any(pe != qse):
+                    infos.append(concept.phi)
+                    p = pe
+                    q = qe
+            else:
+                if any(pc != qsc):
+                    infos.append(concept.phi)
+                    p = pc
+                    q = qc
+
+            if len(p):
+                ds = [distance(x, y) if x > 0 else 0 for (x, y) in zip(p, q)]
+                maxidx = np.argmax(ds)
+                if ds[maxidx].round(decimals=config.PRECISION) != concept.phi:
+                    print('problem')
+                ps.append(p[maxidx])
+
+            # p = [pc[maxcidx], pe[maxeidx]]
+            # info = [infoc, infoe]
+
+            #  # compute big phi with the minimum between cause and effect
+            # minidx = np.argmin(info)
+            # ps.append(p[minidx])
+            # infos.append(info[minidx])
+
+            # # compute big phi with the sum in change in cause and effect
+            # ps += p
+            # infos += info
+
+            # compute big phi with the maximum between cause and effect
+            # maxidx = np.argmax(info)
+            # ps.append(p[maxidx])
+            # infos.append(info[maxidx])
+
+
+
+
+
+        if config.SPECIFICATION_RATIO == 'EXTANT_PROD_PROB':
+            func = lambda x, y: x*y
+        elif config.SPECIFICATION_RATIO == 'EXTANT_SUM_PROB':
+            func = lambda x, y: x+y
+        else:
+            raise ValueError('Unknown SPECIFICATION_RATIO: %s' % config.SPECIFICATION_RATIO)
+
+        if not ps:
+            c_phi = 0
+        else:
+            # print(ps)
+            # c_phi = (reduce(func, ps)/reduce(func, [1]*len(ps)))
+            # print (c_phi)
+            # print (infos)
+            c_phi = (reduce(func, ps)/reduce(func, [1]*len(ps))) * sum(infos)
+            # print (c_phi, '\n')
+            # print (c_phi)
 
         if r_phi > 0:
             raise ValueError('Relations not supported yet')
